@@ -1,6 +1,13 @@
 ImagesGallery XBlock for open edX
 #############################
 
+Purpose
+*******
+
+`XBlock`_ is the Open edX component architecture for building custom learning interactives.
+
+.. _XBlock: https://openedx.org/r/xblock
+
 XBlock that allows uploading, downloading, and displaying a carousel of images.
 
 Testing with Docker
