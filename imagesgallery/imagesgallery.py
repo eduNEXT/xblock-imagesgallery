@@ -94,6 +94,29 @@ class ImagesGalleryXBlock(XBlock):
         frag.initialize_js('ImagesGalleryXBlock')
         return frag
 
+    def studio_view(self, context=None) -> Fragment:
+        """
+        The studio view of the ImagesGalleryXBlock, shown to instructors for editing the XBlock.
+        Args:
+            context (dict, optional): Context for the template. Defaults to None.
+        Returns:
+            Fragment: The fragment to render
+        """
+        html = self.resource_string("static/html/imagesgallery_edit.html")
+        frag = Fragment(html.format(self=self))
+        frag.add_css(self.resource_string("static/css/imagesgallery.css"))
+
+        # Add i18n js
+        statici18n_js_url = self._get_statici18n_js_url()
+        if statici18n_js_url:
+            frag.add_javascript_url(self.runtime.local_resource_url(self, statici18n_js_url))
+
+        # Adding the correct route of the bundle
+        frag.add_javascript(self.resource_string("static/js/src/imagesgalleryEdit.js"))
+        frag.initialize_js('ImagesGalleryXBlockEdit')
+
+        return frag
+
     @XBlock.handler
     def file_upload(self, request, suffix=''):
         """Handler for file upload to the course assets."""
@@ -201,6 +224,22 @@ class ImagesGalleryXBlock(XBlock):
             course_key, start=start, maxresults=page_size, sort=sort, filter_params=filter_params
         )
 
+
+    @XBlock.json_handler
+    def get_files(self, data, suffix=''):
+        """Handler for getting images from the course assets."""
+        from cms.djangoapps.contentstore.asset_storage_handlers import _get_assets_for_page, _get_content_type_filter_for_mongo, _get_assets_in_json_format
+        query_options = {
+            "current_page": int(data.get("current_page")),
+            "page_size": int(data.get("page_size")),
+            "sort": {},
+            "filter_params": _get_content_type_filter_for_mongo("Images"),
+        }
+        assets, total_count = _get_assets_for_page(self.course_id, query_options)
+        return {
+            "files": _get_assets_in_json_format(assets, self.course_id),
+            "total_count": total_count,
+        }
 
     # TO-DO: change this to create the scenarios you'd like to see in the
     # workbench while developing your XBlock.
