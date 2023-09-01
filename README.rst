@@ -11,7 +11,7 @@ Purpose
 XBlock that allows uploading, downloading, and displaying a carousel of images.
 
 Setting up React
-******************
+****************
 
 Use Node.js v18.x
 
@@ -21,28 +21,35 @@ You can use `nvm use`_ to switch the Node.js version.
 
 There are three scripts to run our React app:
 
-1. Runs the React app in isolation, which means you do not need the XBlock running.
-This script will start a development server with a hot reload mechanism.
+1. **Running the React App in Isolation**:
 
-```shell
- yarn install
-```
+   This script runs the React app in isolation, which means you do not need the XBlock running. It starts a development server with a hot reload mechanism.
 
-2. Runs React with the XBlock running, allowing you to reload the page with any changes.
-```shell
-  yarn start
-```
+   .. code-block:: shell
 
-3. Generates all the necessary static files for the production environment.
-```shell
- yarn build
-```
+      yarn install
 
-We also recommend using `yarn`_ You can install it with the following command:
+2. **Running React with the XBlock**:
 
-```shell
- npm install --global yarn
-```
+   This script runs React with the XBlock running, allowing you to reload the page with any changes.
+
+   .. code-block:: shell
+
+      yarn start
+
+3. **Generating Static Files for Production**:
+
+   This script generates all the necessary static files for the production environment.
+
+   .. code-block:: shell
+
+      yarn build
+
+We also recommend using `yarn`_. You can install it with the following command:
+
+.. code-block:: shell
+
+   npm install --global yarn
 
 .. _yarn: https://classic.yarnpkg.com/lang/en/docs/install
 
