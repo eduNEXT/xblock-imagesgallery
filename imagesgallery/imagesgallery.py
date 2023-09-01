@@ -1,5 +1,5 @@
 """TO-DO: Write a description of what this XBlock is."""
-
+import logging
 import pkg_resources
 from django.utils import translation
 from xblock.core import XBlock
@@ -7,6 +7,9 @@ from xblock.fields import Integer, Scope
 from xblock.fragment import Fragment
 from xblockutils.resources import ResourceLoader
 
+from webob.response import Response
+
+log = logging.getLogger(__name__)
 
 class ImagesGalleryXBlock(XBlock):
     """
@@ -50,18 +53,19 @@ class ImagesGalleryXBlock(XBlock):
 
     # TO-DO: change this handler to perform your own actions.  You may need more
     # than one handler, or you may not need any handlers at all.
-    @XBlock.json_handler
-    def increment_count(self, data, suffix=''):
-        """
-        An example handler, which increments the data.
-        """
-        if suffix:
-            pass  # TO-DO: Use the suffix when storing data.
-        # Just to show data coming in...
-        assert data['hello'] == 'world'
+    @XBlock.handler
+    def file_upload(self, request, suffix=''):
+        """Handler for file upload."""
+        from cms.djangoapps.contentstore.views.assets import update_course_run_asset
 
-        self.count += 1
-        return {"count": self.count}
+        upload_file = request.params["file"]
+        try:
+            content = update_course_run_asset(self.course_id, upload_file)
+        except Exception as exception:
+            log.exception("Error uploading file: %s", exception)
+            return Response(status=413)
+
+        return Response(status=200)
 
     # TO-DO: change this to create the scenarios you'd like to see in the
     # workbench while developing your XBlock.
