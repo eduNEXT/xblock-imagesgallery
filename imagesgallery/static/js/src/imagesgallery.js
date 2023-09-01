@@ -1,28 +1,32 @@
 /* Javascript for ImagesGalleryXBlock. */
 function ImagesGalleryXBlock(runtime, element) {
 
-    function updateCount(result) {
-        $('.count', element).text(result.count);
-    }
+    const fileUploadHandler = runtime.handlerUrl(element, 'file_upload');
 
-    var handlerUrl = runtime.handlerUrl(element, 'increment_count');
+    $(element)
+    .find("#file-upload-submit")
+    .on('click', function() {
+        console.log("File upload button clicked");
+        fileUpload();
+    });
 
-    $('p', element).click(function(eventObject) {
+    function fileUpload() {
+        var fileInput = document.getElementById('file-upload');
+        var file = fileInput.files[0];
+        var formData = new FormData();
+        formData.append('file', file);
         $.ajax({
-            type: "POST",
-            url: handlerUrl,
-            data: JSON.stringify({"hello": "world"}),
-            success: updateCount
+            url: fileUploadHandler,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                console.log(data);
+            },
+            error: function(error) {
+                console.log(error);
+            }
         });
-    });
-
-    $(function ($) {
-        /*
-        Use `gettext` provided by django-statici18n for static translations
-
-        var gettext = ImagesGalleryXBlocki18n.gettext;
-        */
-
-        /* Here's where you'd do things on page load. */
-    });
+    }
 }
