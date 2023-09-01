@@ -10,6 +10,43 @@ Purpose
 
 XBlock that allows uploading, downloading, and displaying a carousel of images.
 
+Setting up React
+******************
+
+Use Node.js v18.x
+
+You can use `nvm use`_ to switch the Node.js version.
+
+.. _nvm use: https://github.com/nvm-sh/nvm#automatically-call-nvm-use
+
+There are three scripts to run our React app:
+
+1. Runs the React app in isolation, which means you do not need the XBlock running.
+This script will start a development server with a hot reload mechanism.
+
+```shell
+ yarn install
+```
+
+2. Runs React with the XBlock running, allowing you to reload the page with any changes.
+```shell
+  yarn start
+```
+
+3. Generates all the necessary static files for the production environment.
+```shell
+ yarn build
+```
+
+We also recommend using `yarn`_ You can install it with the following command:
+
+```shell
+ npm install --global yarn
+```
+
+.. _yarn: https://classic.yarnpkg.com/lang/en/docs/install
+
+
 Testing with Docker
 ********************
 
@@ -40,7 +77,7 @@ The general steps to provide multilingual messages for a Python program (or an X
 3. Create language specific translations for each message in the catalogs.
 4. Use ``gettext`` to translate strings.
 
-1. Mark translatable strings
+5. Mark translatable strings
 =============================
 
 Mark translatable strings in python::

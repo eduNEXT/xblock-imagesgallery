@@ -1,0 +1,35 @@
+{
+  "name": "xblock-imagesgallery",
+  "version": "0.1.0",
+  "main": "index.js",
+  "repository": "git@github.com:eduNEXT/xblock-imagesgallery.git",
+  "author": "technical@edunext.co",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack serve --mode=development --open",
+    "build": "webpack --mode=production",
+    "dev": "webpack --mode=production --watch"
+  },
+  "dependencies": {
+    "@babel/core": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
+    "@babel/preset-react": "^7.22.5",
+    "babel-loader": "^9.1.3",
+    "css-loader": "^6.8.1",
+    "html-loader": "^4.2.0",
+    "html-webpack-plugin": "^5.5.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.88.2",
+    "webpack-bundle-tracker": "^2.0.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-manifest-plugin": "^5.0.0",
+    "webpack-merge": "^5.9.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2",
+    "webpack-dev-server": "^4.15.1"
+  }
+}
