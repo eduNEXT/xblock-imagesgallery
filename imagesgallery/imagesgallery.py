@@ -59,20 +59,12 @@ class ImagesGalleryXBlock(XBlock):
         frag.initialize_js('ImagesGalleryXBlock')
         return frag
 
-    # TO-DO: change this handler to perform your own actions.  You may need more
-    # than one handler, or you may not need any handlers at all.
     @XBlock.handler
     def file_upload(self, request, suffix=''):
         """Handler for file upload."""
         from cms.djangoapps.contentstore.views.assets import update_course_run_asset
-
-        upload_file = request.params["file"]
-        try:
-            content = update_course_run_asset(self.course_id, upload_file)
-        except Exception as exception:
-            log.exception("Error uploading file: %s", exception)
-            return Response(status=413)
-
+        upload_file = request.params["file"].file
+        update_course_run_asset(self.course_id, upload_file)
         return Response(status=200)
 
     # TO-DO: change this to create the scenarios you'd like to see in the
