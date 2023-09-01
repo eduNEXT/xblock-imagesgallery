@@ -2,19 +2,13 @@
 function ImagesGalleryXBlock(runtime, element) {
 
     const fileUploadHandler = runtime.handlerUrl(element, 'file_upload');
-
+    console.log(element);
     $(element)
-    .find("#file-upload-submit")
-    .on('click', function() {
+    .find("#file-upload")
+    .on("submit", function(e) {
+        e.preventDefault();
         console.log("File upload button clicked");
-        fileUpload();
-    });
-
-    function fileUpload() {
-        var fileInput = document.getElementById('file-upload');
-        var file = fileInput.files[0];
-        var formData = new FormData();
-        formData.append('file', file);
+        var formData = new FormData(this);
         $.ajax({
             url: fileUploadHandler,
             type: 'POST',
@@ -28,5 +22,5 @@ function ImagesGalleryXBlock(runtime, element) {
                 console.log(error);
             }
         });
-    }
+    });
 }
