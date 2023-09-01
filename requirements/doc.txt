@@ -4,8 +4,6 @@
 #
 #    make upgrade
 #
-accessible-pygments==0.0.4
-    # via pydata-sphinx-theme
 alabaster==0.7.13
     # via sphinx
 appdirs==1.4.4
@@ -17,19 +15,19 @@ asgiref==3.7.2
     #   -r requirements/test.txt
     #   django
 babel==2.12.1
-    # via
-    #   pydata-sphinx-theme
-    #   sphinx
+    # via sphinx
 beautifulsoup4==4.12.2
     # via pydata-sphinx-theme
 bleach==6.0.0
     # via readme-renderer
-boto3==1.28.39
+boto3==1.7.0
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   fs-s3fs
-botocore==1.31.39
+botocore==1.10.84
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   boto3
     #   s3transfer
@@ -49,6 +47,7 @@ code-annotations==1.5.0
     # via -r requirements/test.txt
 coverage[toml]==7.3.0
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   pytest-cov
 cryptography==41.0.3
@@ -69,8 +68,10 @@ django-statici18n==2.4.0
     # via -r requirements/test.txt
 doc8==1.1.1
     # via -r requirements/doc.in
-docutils==0.19
+docutils==0.20.1
     # via
+    #   -r requirements/test.txt
+    #   botocore
     #   doc8
     #   pydata-sphinx-theme
     #   readme-renderer
@@ -88,7 +89,7 @@ fs==2.4.16
     #   fs-s3fs
     #   openedx-django-pyfs
     #   xblock
-fs-s3fs==1.1.1
+fs-s3fs==1.1.0
     # via
     #   -r requirements/test.txt
     #   openedx-django-pyfs
@@ -99,7 +100,6 @@ imagesize==1.4.1
 importlib-metadata==6.8.0
     # via
     #   keyring
-    #   sphinx
     #   twine
 importlib-resources==6.0.1
     # via keyring
@@ -118,7 +118,7 @@ jinja2==3.1.2
     #   -r requirements/test.txt
     #   code-annotations
     #   sphinx
-jmespath==1.0.1
+jmespath==0.10.0
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -157,7 +157,6 @@ packaging==23.1
     # via
     #   -r requirements/test.txt
     #   build
-    #   pydata-sphinx-theme
     #   pytest
     #   sphinx
 path==16.7.1
@@ -180,13 +179,11 @@ polib==1.2.0
     #   edx-i18n-tools
 pycparser==2.21
     # via cffi
-pydata-sphinx-theme==0.13.3
+pydata-sphinx-theme==0.8.0
     # via sphinx-book-theme
 pygments==2.16.1
     # via
-    #   accessible-pygments
     #   doc8
-    #   pydata-sphinx-theme
     #   readme-renderer
     #   rich
     #   sphinx
@@ -221,6 +218,7 @@ pyyaml==6.0.1
     #   -r requirements/test.txt
     #   code-annotations
     #   edx-i18n-tools
+    #   sphinx-book-theme
     #   xblock
 readme-renderer==41.0
     # via twine
@@ -237,7 +235,7 @@ rfc3986==2.0.0
     # via twine
 rich==13.5.2
     # via twine
-s3transfer==0.6.2
+s3transfer==0.1.13
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -258,12 +256,12 @@ snowballstemmer==2.2.0
     # via sphinx
 soupsieve==2.4.1
     # via beautifulsoup4
-sphinx==6.2.1
+sphinx==3.5.3
     # via
     #   -r requirements/doc.in
     #   pydata-sphinx-theme
     #   sphinx-book-theme
-sphinx-book-theme==1.0.1
+sphinx-book-theme==0.3.3
     # via -r requirements/doc.in
 sphinxcontrib-applehelp==1.0.4
     # via sphinx
@@ -304,12 +302,9 @@ typing-extensions==4.7.1
     # via
     #   -r requirements/test.txt
     #   asgiref
-    #   pydata-sphinx-theme
     #   rich
-urllib3==1.26.16
+urllib3==2.0.4
     # via
-    #   -r requirements/test.txt
-    #   botocore
     #   requests
     #   twine
 web-fragments==2.1.0
