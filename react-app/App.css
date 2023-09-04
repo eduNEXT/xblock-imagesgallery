@@ -1,0 +1,9 @@
+.container {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.title {
+  font-weight: 700;
+  margin: 16px;
+}
