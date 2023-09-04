@@ -1,0 +1,43 @@
+/* Add your CSS rules to style the dropzone area */
+.dropzone {
+  border: 2px dashed #cccccc;
+  border-radius: 4px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.dropzone .active {
+  border-color: #007bff;
+}
+
+/* Style for uploaded files */
+.file-uploader div {
+  margin-top: 20px;
+  border: 2px dashed black;
+  /* #92b0b3; */
+  border-radius: 4px;
+  background-color: #fff;
+  opacity: 0.3;
+  padding: 32px;
+  /*padding: 100px 50px; */
+  transition: background-color 0.2s;
+  display: flex;
+  /*width: 50%; */
+  /*justify-content: center; */
+  /*#f9f9f9; */
+}
+
+.dropzone.active {
+  border-color: #007bff;
+  background-color: #f9f9f9; /* Change the background color when a file is being dragged over */
+}
+
+.file-uploader img {
+  max-width: 100%;
+  height: auto;
+}

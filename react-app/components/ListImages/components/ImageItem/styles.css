@@ -1,0 +1,71 @@
+
+.card {
+    position: relative;
+    width: 100%;
+    max-width: 300px; /* Define a maximum width for the card */
+    background-color: #fff; /* Background color of the card */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden; /* Hide overflowing content */
+    cursor: pointer;
+}
+
+.card-image {
+    width: 100%;
+    height: 100%; /* Use 100% height to fill the card vertically */
+    object-fit: cover; /* Maintain aspect ratio and cover the card */
+}
+
+.faded {
+    opacity: 0.7; /* Reduce opacity on hover */
+  }
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    height: 100%; /* Fill the remaining height of the card */
+}
+
+.title-top {
+    position: absolute;
+    top: 10px; /* Adjust top position as needed */
+    left: 10px; /* Adjust left position as needed */
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.7); /* Add a semi-transparent background */
+    padding: 5px 10px; /* Add padding to the title */
+    border-radius: 5px;
+    visibility: hidden;
+    z-index: 1;
+    opacity: 1;
+}
+
+.bottom-content {
+   position: absolute;
+   bottom: 10px; /* Adjust top position as needed */
+   width: 100%;
+   padding: 0px 5px;
+   background-color: rgba(255, 255, 255, 0.7);
+   display: flex;
+   justify-content: space-around;
+   visibility: hidden;
+ }
+
+.visible {
+  visibility: visible;
+  cursor: pointer;
+}
+
+
+.subtitle-trash {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: auto; /* Push subtitle and trash icon to the bottom */
+    padding: 10px; /* Add padding to create space at the bottom */
+}
+
+.delete-icon {
+    color: red;
+    cursor: pointer;
+}
