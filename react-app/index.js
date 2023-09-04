@@ -28,4 +28,3 @@ function ImagesGalleryXBlock(runtime, element, options) {
 }
 
 export { ImagesGalleryXBlock };
-
