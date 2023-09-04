@@ -84,7 +84,7 @@ The general steps to provide multilingual messages for a Python program (or an X
 3. Create language specific translations for each message in the catalogs.
 4. Use ``gettext`` to translate strings.
 
-5. Mark translatable strings
+1. Mark translatable strings
 =============================
 
 Mark translatable strings in python::
