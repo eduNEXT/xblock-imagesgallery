@@ -44,19 +44,23 @@ jobs:
     #    flags: unittests
     #    fail_ci_if_error: true
   react_lint:
-    name: Node.js Tests
+    name: Node.js linter
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-20.04]
-        node-version: ['18']
+        node-version: [18]
 
     steps:
     - uses: actions/checkout@v3
     - name: Setup Node.js 18
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: 18
+
+    - name: Install yarn
+      run: npm install --global yarn
+
     - name: Install Node.js 18 dependencies
       run: yarn install
 
