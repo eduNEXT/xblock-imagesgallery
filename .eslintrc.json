@@ -45,15 +45,18 @@
       "warn",
       { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
     ],
-    "jsx-a11y/label-has-associated-control": ["error", {
-      "required": {
-        "some": ["nesting", "id", "name"]
+    "jsx-a11y/label-has-associated-control": [
+      "error",
+      {
+        "required": {
+          "some": ["nesting", "id", "name"]
+        }
       }
-    }],
+    ],
     "react/jsx-filename-extension": [
       1,
       {
-        "extensions": [".js", ".jsx", ".ts",".tsx"]
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
       }
     ],
     "import/prefer-default-export": "off",
