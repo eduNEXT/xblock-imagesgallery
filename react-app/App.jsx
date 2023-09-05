@@ -16,8 +16,8 @@ const App = () => {
 
   return (
     <GalleryContext.Provider value={{ isGalleryOpened, setIsGalleryOpened, filesToUploadList, setFilesToUploadList }}>
-      <div className="container">
-        <h1 className="title">Images Gallery XBlock</h1>
+      <div className="xblock-images-gallery__container">
+        <h1 className="xblock-images-gallery__title">Images Gallery XBlock</h1>
         {isGalleryOpened ? (
           <Gallery />
         ) : (

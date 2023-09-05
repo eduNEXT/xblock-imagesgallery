@@ -60,7 +60,7 @@ const DropZoneFile = () => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: fileTypesAllowed });
 
   return (
-    <div className="file-uploader">
+    <div className="xblock-images-gallery__file-uploader">
       <div {...getRootProps()} className={`dropzone ${isDragActive ? 'active' : ''}`}>
         <input {...getInputProps()} />
         <p>Drag & drop files here, or click to select files</p>

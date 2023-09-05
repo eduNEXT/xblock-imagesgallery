@@ -14,7 +14,7 @@
   border-color: #007bff;
 }
 
-.file-uploader div {
+.xblock-images-gallery__file-uploader div {
   margin-top: 20px;
   border: 2px dashed black;
   border-radius: 4px;
@@ -31,7 +31,7 @@
   background-color: #f9f9f9;
 }
 
-.file-uploader img {
+.xblock-images-gallery__file-uploader img {
   max-width: 100%;
   height: auto;
 }

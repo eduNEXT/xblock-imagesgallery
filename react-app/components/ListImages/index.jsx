@@ -10,9 +10,9 @@ function ListImages(props) {
   return (
     <>
       <div>
-        <h3 className="list-title">To upload</h3>
+        <h3 className="xblock-images-gallery__list-title">To upload</h3>
       </div>
-      <div className="grid">
+      <div className="xblock-images-gallery__grid">
         {list.map((imageData) => (
           <ImageItem key={imageData.id} {...imageData} />
         ))}
