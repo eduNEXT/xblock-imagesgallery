@@ -63,7 +63,7 @@ const DropZoneFile = () => {
     <div className="xblock-images-gallery__file-uploader">
       <div {...getRootProps()} className={`dropzone ${isDragActive ? 'active' : ''}`}>
         <input {...getInputProps()} />
-        <p>Drag & drop files here, or click to select files</p>
+        <p>{gettext('Drag & drop files here, or click to select files')}</p>
         <FontAwesomeIcon icon={faFileImage} style={{ fontSize: '50px', color: '#007bff' }} />
       </div>
     </div>

@@ -10,7 +10,7 @@ function ListImages(props) {
   return (
     <>
       <div>
-        <h3 className="xblock-images-gallery__list-title">To upload</h3>
+        <h3 className="xblock-images-gallery__list-title">{gettext('To upload')}</h3>
       </div>
       <div className="xblock-images-gallery__grid">
         {list.map((imageData) => (
