@@ -19,10 +19,11 @@ const fileTypesAllowed = {
 const DropZoneFile = () => {
   const { setFilesToUploadList } = useContext(GalleryContext);
 
-  const onDrop = useCallback((acceptedFiles) => {
+  // Callback executed when files are dropped to the drop zone
+  const onDrop = useCallback((allowedFiles) => {
     // Create a FormData object to send the file to the server
     // const formData = new FormData();
-    acceptedFiles.forEach((file) => {
+    allowedFiles.forEach((file) => {
       //TODO: remove this code when files come from backend
       const reader = new FileReader();
 

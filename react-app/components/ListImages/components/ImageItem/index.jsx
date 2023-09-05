@@ -12,18 +12,22 @@ function ImageItem(props) {
   const [isHovered, setIsHovered] = useState(false);
   const { setIsGalleryOpened, setFilesToUploadList } = useContext(GalleryContext);
 
+  // Event triggered when the mouse is over current the image.
   const handleMouseEnter = () => {
     setIsHovered(true);
   };
 
+  // Event triggered when the mouse is out of the current image.
   const handleMouseLeave = () => {
     setIsHovered(false);
   };
 
+  // Callback triggered to open the gallery.
   const handleOpenGallery = () => {
     setIsGalleryOpened(true);
   };
 
+  // Callback triggered to delete the current image.
   const handleDeleteFile = () => {
     const filesToUploadListStorage = getItemLocalStorage('filesToUploadList') || [];
     const filesToUploadListUpdated = filesToUploadListStorage.filter(({ id }) => id !== idImageItem);

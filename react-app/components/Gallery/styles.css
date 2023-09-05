@@ -1,6 +1,7 @@
 .gallery-container {
   display: flex;
   justify-content: center;
+  flex-direction: column;
 }
 
 .gallery-content {
