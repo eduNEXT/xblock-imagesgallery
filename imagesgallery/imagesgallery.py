@@ -9,6 +9,8 @@ from xblock.fields import Integer, Scope
 from xblock.fragment import Fragment
 from xblockutils.resources import ResourceLoader
 
+from http import HTTPStatus
+
 from webob.response import Response
 
 log = logging.getLogger(__name__)
@@ -61,11 +63,19 @@ class ImagesGalleryXBlock(XBlock):
 
     @XBlock.handler
     def file_upload(self, request, suffix=''):
-        """Handler for file upload."""
+        """Handler for file upload to the course assets."""
+        # Importing here to avoid circular imports
         from cms.djangoapps.contentstore.views.assets import update_course_run_asset
+
         upload_file = request.params["file"].file
-        update_course_run_asset(self.course_id, upload_file)
-        return Response(status=200)
+
+        try:
+            update_course_run_asset(self.course_id, upload_file)
+        except Exception as e:
+            log.exception(e)
+            return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        return Response(status=HTTPStatus.OK)
 
     # TO-DO: change this to create the scenarios you'd like to see in the
     # workbench while developing your XBlock.
