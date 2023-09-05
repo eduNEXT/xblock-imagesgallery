@@ -42,7 +42,7 @@
 
 .bottom-content {
   position: absolute;
-  bottom: 10px; /* Adjust top position as needed */
+  bottom: 10px;
   width: 100%;
   padding: 0px 5px;
   background-color: rgba(255, 255, 255, 0.7);
@@ -60,8 +60,8 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-top: auto; /* Push subtitle and trash icon to the bottom */
-  padding: 10px; /* Add padding to create space at the bottom */
+  margin-top: auto;
+  padding: 10px;
 }
 
 .delete-icon {
