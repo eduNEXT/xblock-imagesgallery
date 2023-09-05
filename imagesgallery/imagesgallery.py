@@ -68,7 +68,6 @@ class ImagesGalleryXBlock(XBlock):
         from cms.djangoapps.contentstore.views.assets import update_course_run_asset
 
         upload_file = request.params["file"].file
-
         try:
             update_course_run_asset(self.course_id, upload_file)
         except Exception as e:
@@ -76,6 +75,12 @@ class ImagesGalleryXBlock(XBlock):
             return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
         return Response(status=HTTPStatus.OK)
+
+    @XBlock.handler
+    def get_files(self, request, suffix=''):
+        """Handler for getting images from the course assets."""
+        from cms.djangoapps.contentstore.assett_storage_handlers import _assets_json
+        _assets_json(request, self.course_id)
 
     # TO-DO: change this to create the scenarios you'd like to see in the
     # workbench while developing your XBlock.
