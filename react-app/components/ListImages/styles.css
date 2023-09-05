@@ -1,6 +1,12 @@
 .grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 columns */
-    gap: 20px; /* Gap between cards */
-    padding: 16px;
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 20px !important;
+  padding: 16px !important;
+}
+
+.list-title {
+  font-weight: 700;
+  align-items: center;
+  text-align: left !important;
 }

@@ -1,11 +1,19 @@
-.test-div {
+.container {
   font-family: sans-serif;
   text-align: center;
+  margin: 16px 0px;
+  min-height: 80%;
+  padding: 16px;
+}
+
+.container > div {
+  padding: 16px !important;
 }
 
 .title {
   font-weight: 700;
   margin: 16px;
+  text-align: left;
 }
 
 .image-gallery-icon {

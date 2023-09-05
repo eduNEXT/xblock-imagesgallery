@@ -1,35 +1,33 @@
-import { useState, createContext } from 'react';
+import { useState, useEffect } from 'react';
+import DropZoneFile from '@components/DropZoneFile';
+import ListImages from '@components/ListImages';
+import Gallery from '@components/Gallery';
+import { GalleryContext } from '@contexts/galleryContext';
 
 import './App.css';
-import DropZoneFile from './components/DropZoneFile';
-import ListImages from './components/ListImages';
-import Gallery from './components/Gallery';
-
-// Create a new context
-export const MyContext = createContext();
 
 const App = () => {
   const [isGalleryOpened, setIsGalleryOpened] = useState(false);
+  const [filesToUploadList, setFilesToUploadList] = useState([]);
 
-  const toggleGallery = () => setIsGalleryOpened(!isGalleryOpened);
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
 
   return (
-    <MyContext.Provider value={{ isGalleryOpened, setIsGalleryOpened }}>
-      <div className="test-div">
+    <GalleryContext.Provider value={{ isGalleryOpened, setIsGalleryOpened, filesToUploadList, setFilesToUploadList }}>
+      <div className="container">
         <h1 className="title">Images Gallery XBlock</h1>
-        <button type="button" onClick={toggleGallery}>CLick me!</button>
         {isGalleryOpened ? (
           <Gallery />
         ) : (
           <>
             <DropZoneFile />
-            <ListImages />
+            <ListImages list={filesToUploadList} />
           </>
         )}
-
-        {/*<Gallery /> */}
       </div>
-    </MyContext.Provider>
+    </GalleryContext.Provider>
   );
 };
 

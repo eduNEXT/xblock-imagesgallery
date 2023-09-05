@@ -1,36 +1,35 @@
-import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import React, { memo } from 'react';
+import PropTypes from 'prop-types';
 
 import ImageItem from './components/ImageItem';
-
 import './styles.css';
 
-function generateUniqueID() {
-    // A simple function to generate a unique ID using the current timestamp
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  }
-
-  const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'teal', 'brown', 'gray'];
-
-  const colorObjects = [];
-
-  for (let i = 0; i < 15; i++) {
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    const uniqueID = generateUniqueID();
-    colorObjects.push({ id: uniqueID, name: randomColor });
-  }
-
-function ListImages() {
-
+function ListImages(props) {
+  const { list } = props;
 
   return (
-    <div className="grid" >
-      {/* Card 1 */}
-      {colorObjects.map(({ id}) => <ImageItem key={id} />)}
-      {/* Add more cards as needed */}
-    </div>
+    <>
+      <div>
+        <h3 className="list-title">To upload</h3>
+      </div>
+      <div className="grid">
+        {list.map((imageData) => (
+          <ImageItem key={imageData.id} {...imageData} />
+        ))}
+      </div>
+    </>
   );
 }
 
-export default ListImages;
+ListImages.propTypes = {
+  list: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      url: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      size: PropTypes.string.isRequired
+    })
+  ).isRequired
+};
+
+export default memo(ListImages);

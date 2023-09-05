@@ -47,7 +47,12 @@ module.exports = {
   ],
   resolve: {
     modules: [path.resolve(__dirname, "react-app"), "node_modules"],
-    extensions: [".js", ".jsx", ".tsx", ".ts"]
+    extensions: [".js", ".jsx", ".tsx", ".ts"],
+    alias: {
+      '@components': path.resolve(__dirname, 'react-app/components'),
+      '@utils': path.resolve(__dirname, 'react-app/utils'),
+      '@contexts': path.resolve(__dirname, 'react-app/contexts')
+    }
   },
   devServer: {
     static: {

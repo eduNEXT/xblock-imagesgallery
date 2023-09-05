@@ -1,0 +1,25 @@
+.gallery-container {
+  display: flex;
+  justify-content: center;
+}
+
+.gallery-content {
+  display: flex;
+  align-items: center;
+}
+
+.button-close {
+  background: inherit !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 60px;
+  cursor: pointer;
+}
+.fade-in {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.fade-in.show {
+  opacity: 1;
+}

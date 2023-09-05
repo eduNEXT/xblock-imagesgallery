@@ -1,39 +1,55 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, memo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileImage } from '@fortawesome/free-regular-svg-icons'
-import { faTrash } from '@fortawesome/free-solid-svg-icons';;
+import { faFileImage } from '@fortawesome/free-regular-svg-icons';
+import { GalleryContext } from '@contexts/galleryContext';
+import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorage';
+import { sizeFileFormat } from '@utils/fileUtils';
 import './styles.css';
 
-const DropZoneFile = () => {
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+const fileTypesAllowed = {
+  'image/jpeg': [],
+  'image/png': [],
+  'image/webp': [],
+  'image/heic': [],
+  'image/jfif': [],
+  'image/gif': []
+};
 
-  // Define a callback function for handling file uploads
+const DropZoneFile = () => {
+  const { setFilesToUploadList } = useContext(GalleryContext);
+
   const onDrop = useCallback((acceptedFiles) => {
     // Create a FormData object to send the file to the server
-    const formData = new FormData();
+    // const formData = new FormData();
     acceptedFiles.forEach((file) => {
-      console.log('files', file);
-      // formData.append('file', file);
+      //TODO: remove this code when files come from backend
       const reader = new FileReader();
 
       // Define the callback function to run when the file is loaded
       reader.onload = (event) => {
-        //const img = document.createElement('img');
-        //img.className = 'preview-image';
-        //img.src = event.target.result;
-        //previewContainer.appendChild(img);
-        console.log(event.target.result);
+        const { name, size } = file;
+        const id = new Date().getTime();
+        const url = event.target.result;
+        const sizeFormatted = sizeFileFormat(size);
+        const image = {
+          id,
+          name,
+          url,
+          size: sizeFormatted
+        };
+
+        const filesToUploadListStorage = getItemLocalStorage('filesToUploadList') || [];
+        const filesToUploadListUpdated = [...filesToUploadListStorage, image];
+        setItemLocalStorage('filesToUploadList', filesToUploadListUpdated);
+        setFilesToUploadList(filesToUploadListUpdated);
       };
 
       // Read the file as a data URL (this will trigger the onload callback)
       reader.readAsDataURL(file);
     });
 
-
-    console.log('files: ', formData);
-
-    // Send the file to the server using Axios or your preferred HTTP library
+    // TODO: Uncomment this when files come from backend
     /*axios.post('/upload', formData).then((response) => {
       // Handle the response from the server
       console.log('File uploaded successfully!', response.data);
@@ -41,27 +57,17 @@ const DropZoneFile = () => {
     }); */
   }, []);
 
-  // Use the useDropzone hook to create a drop zone area
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: fileTypesAllowed });
 
   return (
     <div className="file-uploader">
       <div {...getRootProps()} className={`dropzone ${isDragActive ? 'active' : ''}`}>
         <input {...getInputProps()} />
         <p>Drag & drop files here, or click to select files</p>
-        <FontAwesomeIcon icon={faFileImage}  style={{ fontSize: '50px', color: '#007bff' }} />
-      </div>
-      <div>
-        {uploadedFiles.map((file, index) => (
-          <div key={index}>
-            <p>{file.name}</p>
-            <img src={file.url} alt={file.name} />
-          </div>
-        ))}
+        <FontAwesomeIcon icon={faFileImage} style={{ fontSize: '50px', color: '#007bff' }} />
       </div>
     </div>
   );
 };
 
-export default DropZoneFile;
-
+export default memo(DropZoneFile);
