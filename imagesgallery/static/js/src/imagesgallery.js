@@ -2,7 +2,8 @@
 function ImagesGalleryXBlock(runtime, element) {
 
     const fileUploadHandler = runtime.handlerUrl(element, 'file_upload');
-    console.log(element);
+    const fileGetterHandler = runtime.handlerUrl(element, 'get_files');
+
     $(element)
     .find("#file-upload")
     .on("submit", function(e) {
@@ -21,6 +22,20 @@ function ImagesGalleryXBlock(runtime, element) {
             error: function(error) {
                 console.log(error);
             }
+        });
+    });
+
+    $(element).find(`#get-assets`).click(function () {
+        const data = {
+            "current_page": 0,
+            "page_size": 10,
+        }
+        $.post(fileGetterHandler, JSON.stringify(data))
+        .done(function (response) {
+            console.log(response.files);
+        })
+        .fail(function () {
+            console.log("Error getting assets");
         });
     });
 }

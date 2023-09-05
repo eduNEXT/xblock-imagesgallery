@@ -76,11 +76,21 @@ class ImagesGalleryXBlock(XBlock):
 
         return Response(status=HTTPStatus.OK)
 
-    @XBlock.handler
-    def get_files(self, request, suffix=''):
+    @XBlock.json_handler
+    def get_files(self, data, suffix=''):
         """Handler for getting images from the course assets."""
-        from cms.djangoapps.contentstore.assett_storage_handlers import _assets_json
-        _assets_json(request, self.course_id)
+        from cms.djangoapps.contentstore.asset_storage_handlers import _get_assets_for_page, _get_content_type_filter_for_mongo, _get_assets_in_json_format
+        query_options = {
+            "current_page": int(data.get("current_page")),
+            "page_size": int(data.get("page_size")),
+            "sort": {},
+            "filter_params": _get_content_type_filter_for_mongo("Images"),
+        }
+        assets, total_count = _get_assets_for_page(self.course_id, query_options)
+        return {
+            "files": _get_assets_in_json_format(assets, self.course_id),
+            "total_count": total_count,
+        }
 
     # TO-DO: change this to create the scenarios you'd like to see in the
     # workbench while developing your XBlock.
