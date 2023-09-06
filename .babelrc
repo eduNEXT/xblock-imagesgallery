@@ -1,3 +1,16 @@
 {
-    "presets": ["@babel/preset-env", ["@babel/preset-react", { "runtime": "automatic" }]]
+  "presets": ["@babel/preset-env", ["@babel/preset-react", { "runtime": "automatic" }]],
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "root": ["./react-app"],
+        "alias": {
+          "@components": "./react-app/components",
+          "@utils": "./react-app/utils",
+          "@contexts": "./react-app/contexts"
+        }
+      }
+    ]
+  ]
 }

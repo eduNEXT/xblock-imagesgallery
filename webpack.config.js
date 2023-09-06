@@ -18,8 +18,19 @@ module.exports = {
         },
       },
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"]
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        use: 'file-loader',
+      },
+      {
+        test: /\.(css|scss)$/,
+        use: [
+          // Creates `style` nodes from JS strings
+          "style-loader",
+          // Translates CSS into CommonJS
+          "css-loader",
+          // Compiles Sass to CSS
+          "sass-loader",
+        ],
       },
       {
         test: /\.html$/,
@@ -36,7 +47,12 @@ module.exports = {
   ],
   resolve: {
     modules: [path.resolve(__dirname, "react-app"), "node_modules"],
-    extensions: [".js", ".jsx", ".tsx", ".ts"]
+    extensions: [".js", ".jsx", ".tsx", ".ts"],
+    alias: {
+      '@components': path.resolve(__dirname, 'react-app/components'),
+      '@utils': path.resolve(__dirname, 'react-app/utils'),
+      '@contexts': path.resolve(__dirname, 'react-app/contexts')
+    }
   },
   devServer: {
     static: {
