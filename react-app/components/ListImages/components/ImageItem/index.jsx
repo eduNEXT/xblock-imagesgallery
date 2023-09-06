@@ -2,7 +2,7 @@ import React, { useContext, useState, memo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import PropTypes from 'prop-types';
-import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorage';
+import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorageUtils';
 import { GalleryContext } from '@contexts/galleryContext';
 
 import './styles.css';

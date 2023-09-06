@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileImage } from '@fortawesome/free-regular-svg-icons';
 import { GalleryContext } from '@contexts/galleryContext';
-import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorage';
+import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorageUtils';
 import { sizeFileFormat } from '@utils/fileUtils';
 import './styles.css';
 
