@@ -67,12 +67,12 @@ class ImagesGalleryXBlock(XBlock):
         # Importing here to avoid circular imports
         from cms.djangoapps.contentstore.views.assets import update_course_run_asset
 
-        upload_file = request.params["file"].file
-        try:
-            update_course_run_asset(self.course_id, upload_file)
-        except Exception as e:
-            log.exception(e)
-            return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
+        for _, file in request.params.items():
+            try:
+                update_course_run_asset(self.course_id, file.file)
+            except Exception as e:
+                log.exception(e)
+                return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
         return Response(status=HTTPStatus.OK)
 
