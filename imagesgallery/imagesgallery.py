@@ -1,6 +1,7 @@
 """TO-DO: Write a description of what this XBlock is."""
 
 import re
+import logging
 import pkg_resources
 from django.utils import translation
 from xblock.core import XBlock
@@ -8,6 +9,11 @@ from xblock.fields import Integer, Scope
 from xblock.fragment import Fragment
 from xblockutils.resources import ResourceLoader
 
+from http import HTTPStatus
+
+from webob.response import Response
+
+log = logging.getLogger(__name__)
 
 class ImagesGalleryXBlock(XBlock):
     """
@@ -55,20 +61,36 @@ class ImagesGalleryXBlock(XBlock):
         frag.initialize_js('ImagesGalleryXBlock')
         return frag
 
-    # TO-DO: change this handler to perform your own actions.  You may need more
-    # than one handler, or you may not need any handlers at all.
-    @XBlock.json_handler
-    def increment_count(self, data, suffix=''):
-        """
-        An example handler, which increments the data.
-        """
-        if suffix:
-            pass  # TO-DO: Use the suffix when storing data.
-        # Just to show data coming in...
-        assert data['hello'] == 'world'
+    @XBlock.handler
+    def file_upload(self, request, suffix=''):
+        """Handler for file upload to the course assets."""
+        # Importing here to avoid circular imports
+        from cms.djangoapps.contentstore.views.assets import update_course_run_asset
 
-        self.count += 1
-        return {"count": self.count}
+        for _, file in request.params.items():
+            try:
+                update_course_run_asset(self.course_id, file.file)
+            except Exception as e:
+                log.exception(e)
+                return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        return Response(status=HTTPStatus.OK)
+
+    @XBlock.json_handler
+    def get_files(self, data, suffix=''):
+        """Handler for getting images from the course assets."""
+        from cms.djangoapps.contentstore.asset_storage_handlers import _get_assets_for_page, _get_content_type_filter_for_mongo, _get_assets_in_json_format
+        query_options = {
+            "current_page": int(data.get("current_page")),
+            "page_size": int(data.get("page_size")),
+            "sort": {},
+            "filter_params": _get_content_type_filter_for_mongo("Images"),
+        }
+        assets, total_count = _get_assets_for_page(self.course_id, query_options)
+        return {
+            "files": _get_assets_in_json_format(assets, self.course_id),
+            "total_count": total_count,
+        }
 
     # TO-DO: change this to create the scenarios you'd like to see in the
     # workbench while developing your XBlock.

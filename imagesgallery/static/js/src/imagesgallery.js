@@ -1,28 +1,41 @@
 /* Javascript for ImagesGalleryXBlock. */
 function ImagesGalleryXBlock(runtime, element) {
 
-    function updateCount(result) {
-        $('.count', element).text(result.count);
-    }
+    const fileUploadHandler = runtime.handlerUrl(element, 'file_upload');
+    const fileGetterHandler = runtime.handlerUrl(element, 'get_files');
 
-    var handlerUrl = runtime.handlerUrl(element, 'increment_count');
-
-    $('p', element).click(function(eventObject) {
+    $(element)
+    .find("#file-upload")
+    .on("submit", function(e) {
+        e.preventDefault();
+        console.log("File upload button clicked");
+        var formData = new FormData(this);
         $.ajax({
-            type: "POST",
-            url: handlerUrl,
-            data: JSON.stringify({"hello": "world"}),
-            success: updateCount
+            url: fileUploadHandler,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                console.log(data);
+            },
+            error: function(error) {
+                console.log(error);
+            }
         });
     });
 
-    $(function ($) {
-        /*
-        Use `gettext` provided by django-statici18n for static translations
-
-        var gettext = ImagesGalleryXBlocki18n.gettext;
-        */
-
-        /* Here's where you'd do things on page load. */
+    $(element).find(`#get-assets`).click(function () {
+        const data = {
+            "current_page": 0,
+            "page_size": 10,
+        }
+        $.post(fileGetterHandler, JSON.stringify(data))
+        .done(function (response) {
+            console.log(response.files);
+        })
+        .fail(function () {
+            console.log("Error getting assets");
+        });
     });
 }
