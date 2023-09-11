@@ -5,13 +5,18 @@ import logging
 import pkg_resources
 from django.utils import translation
 from xblock.core import XBlock
-from xblock.fields import Integer, Scope
+from xblock.fields import List, Integer, Scope
 from xblock.fragment import Fragment
 from xblockutils.resources import ResourceLoader
 
+from django.conf import settings
+
+from urllib.parse import urljoin
 from http import HTTPStatus
 
 from webob.response import Response
+
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 
 log = logging.getLogger(__name__)
 
@@ -24,9 +29,22 @@ class ImagesGalleryXBlock(XBlock):
     # self.<fieldname>.
 
     # TO-DO: delete count, and define your own fields.
-    count = Integer(
-        default=0, scope=Scope.user_state,
-        help="A simple counter, to show something happening",
+    contents = List(
+        display_name="Static contents uploaded by the instructor.",
+        default=[],
+        scope=Scope.user_state,
+    )
+
+    current_page = Integer(
+        display_name="Current page",
+        default=0,
+        scope=Scope.user_state,
+    )
+
+    page_size = Integer(
+        display_name="Page size",
+        default=10,
+        scope=Scope.settings,
     )
 
     def resource_string(self, path):
@@ -69,27 +87,45 @@ class ImagesGalleryXBlock(XBlock):
 
         for _, file in request.params.items():
             try:
-                update_course_run_asset(self.course_id, file.file)
+                content = update_course_run_asset(self.course_id, file.file)
+                self.serialize_contents(content)
             except Exception as e:
                 log.exception(e)
                 return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
+        return Response(status=HTTPStatus.OK, json_body=self.get_paginated_contents())
 
-        return Response(status=HTTPStatus.OK)
+    def serialize_contents(self, content):
+        """
+        Serializes the content object to a dictionary and appends it to the
+        contents list.
+        """
+        from xmodule.contentstore.content import StaticContent
+
+        asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
+        thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
+        self.contents.append({
+            "id": str(content.get_id()),
+            "display_name": content.name,
+            "url": str(asset_url),
+            "content_type": content.content_type,
+            "file_size": content.length,
+            "external_url": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), asset_url),
+            "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
+        })
+
+    def get_paginated_contents(self):
+        """
+        Returns the contents list.
+        """
+        return self.contents[self.current_page * self.page_size: (self.current_page + 1) * self.page_size]
 
     @XBlock.json_handler
     def get_files(self, data, suffix=''):
         """Handler for getting images from the course assets."""
-        from cms.djangoapps.contentstore.asset_storage_handlers import _get_assets_for_page, _get_content_type_filter_for_mongo, _get_assets_in_json_format
-        query_options = {
-            "current_page": int(data.get("current_page")),
-            "page_size": int(data.get("page_size")),
-            "sort": {},
-            "filter_params": _get_content_type_filter_for_mongo("Images"),
-        }
-        assets, total_count = _get_assets_for_page(self.course_id, query_options)
+        self.current_page = int(data.get("current_page", self.current_page))
         return {
-            "files": _get_assets_in_json_format(assets, self.course_id),
-            "total_count": total_count,
+            "files": self.get_paginated_contents(),
+            "total_count": len(self.contents),
         }
 
     # TO-DO: change this to create the scenarios you'd like to see in the
