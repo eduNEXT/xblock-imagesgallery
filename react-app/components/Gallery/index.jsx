@@ -1,28 +1,13 @@
-import { useContext, memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import ImageGallery from 'react-image-gallery';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import 'react-image-gallery/styles/css/image-gallery.css';
 import globalObject from '@constants/globalObject';
 import apiConfig from '@config/api';
 import ErrorMessage from '@components/ErrorMessage';
 
 import './styles.css';
-// TODO: Remove this images ulr's when files come from backend
-const images = [
-  {
-    original: 'https://fastly.picsum.photos/id/1018/1000/600.jpg?hmac=8y6PgnvgTLEEW-118lVn6V6zPUVSN9JSi27GSpmGpdQ',
-    thumbnail: 'https://fastly.picsum.photos/id/1018/250/150.jpg?hmac=a9jeH9XHKHtbPkhvklrYWgcEOX9kfjewcCNGPOrbAs0'
-  },
-  {
-    original: 'https://picsum.photos/id/1015/1000/600/',
-    thumbnail: 'https://picsum.photos/id/1015/250/150/'
-  },
-  {
-    original: 'https://picsum.photos/id/1019/1000/600/',
-    thumbnail: 'https://picsum.photos/id/1019/250/150/'
-  }
-];
+
+const itemsPerPage = 10;
 
 function Gallery() {
   const [imagesList, setImagesList] = useState([]);
@@ -108,12 +93,13 @@ function Gallery() {
   return (
     <div className="gallery-container">
       <div className="gallery-content">
-        <ImageGallery items={images} />
-      </div>
-      <div className="actions-container">
-        <button type="button" className="button-close" onClick={toggleGallery}>
-          <FontAwesomeIcon icon={faXmark} />
-        </button>
+        <ImageGallery
+          items={imagesList}
+          startIndex={currentIndex}
+          onThumbnailClick={handleOnThumbnailClick}
+          onSlide={handleOnSlide}
+          lazyLoad
+        />
       </div>
       {galleryErrorMessage && (<ErrorMessage message={galleryErrorMessage} />)}
     </div>

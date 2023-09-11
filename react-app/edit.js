@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import globalObject from '@constants/globalObject';
+import globalObject from '@constants/gloablObjectEdit';
 
 import App from './App';
 
 // Check the environment
 if (process.env.NODE_ENV === 'development') {
   // Development mode rendering
-  const rootElement = document.getElementById('images-gallery-app-root');
+  const rootElement = document.getElementById('images-gallery-app-root-2');
   const root = ReactDOM.createRoot(rootElement);
 
   if (!window.gettext) {
@@ -21,19 +21,18 @@ if (process.env.NODE_ENV === 'development') {
   );
 }
 
-// Production mode rendering
-function ImagesGalleryXBlock(runtime, element, context) {
+
+function ImagesGalleryXBlockEdit(runtime, element, context) {
   const typeRuntime = element.getAttribute('data-runtime-class');
-  const xblockId = element.getAttribute('data-usage-id');
   globalObject.runtime = runtime;
   globalObject.element = element;
   globalObject.context = context;
   globalObject.isStudioView = element && typeRuntime === 'PreviewRuntime';
-  globalObject.xblockId = xblockId;
-  const rootElement = document.getElementById('images-gallery-app-root');
-  const currentDateTime = new Date().getTime();
-  const dynamicRootId = `images-gallery-app-root-${currentDateTime}`;
-  rootElement.setAttribute('id', dynamicRootId);
+  console.log(globalObject);
+  const rootElement = document.getElementById('images-gallery-app-root-2');
+  // const currentDateTime = new Date().getTime();
+  // const dynamicRootId = `images-gallery-app-root-2-${currentDateTime}`;
+  // rootElement.setAttribute('id', dynamicRootId);
   const root = ReactDOM.createRoot(rootElement);
 
   if (!window.gettext) {
@@ -47,4 +46,4 @@ function ImagesGalleryXBlock(runtime, element, context) {
   );
 }
 
-export { ImagesGalleryXBlock };
+export { ImagesGalleryXBlockEdit };

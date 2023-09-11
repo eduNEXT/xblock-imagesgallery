@@ -4,11 +4,13 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import PropTypes from 'prop-types';
 import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorageUtils';
 import { GalleryContext } from '@contexts/galleryContext';
+import globalObject from '@constants/globalObject';
+import apiConfig from '@config/api';
 
 import './styles.css';
 
 function ImageItem(props) {
-  const { id: idImageItem, url, name, size } = props;
+  const { id: idImageItem, url, name, size, assetKey } = props;
   const [isHovered, setIsHovered] = useState(false);
   const {setFilesToUploadList, setGalleryErrorMessage } = useContext(GalleryContext);
 
@@ -43,7 +45,7 @@ function ImageItem(props) {
 
   return (
     <div className="card" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-      <div className={`title-top ${isHovered ? 'visible' : ''}`} onClick={handleOpenGallery}>
+      <div className={`title-top ${isHovered ? 'visible' : ''}`}>
         {name}
       </div>
       <img className={`card-image ${isHovered ? 'faded' : ''}`} src={url} alt={`${name}`} />
@@ -59,6 +61,7 @@ function ImageItem(props) {
 
 ImageItem.propTypes = {
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  assetKey: PropTypes.string.isRequired,
   url: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   size: PropTypes.string.isRequired
