@@ -32,7 +32,7 @@ class ImagesGalleryXBlock(XBlock):
     contents = List(
         display_name="Static contents uploaded by the instructor.",
         default=[],
-        scope=Scope.user_state,
+        scope=Scope.settings,
     )
 
     current_page = Integer(
@@ -103,7 +103,7 @@ class ImagesGalleryXBlock(XBlock):
 
         asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
         thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
-        self.contents.append({
+        self.contents = self.contents + [{
             "id": str(content.get_id()),
             "display_name": content.name,
             "url": str(asset_url),
@@ -111,7 +111,7 @@ class ImagesGalleryXBlock(XBlock):
             "file_size": content.length,
             "external_url": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), asset_url),
             "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
-        })
+        }]
 
     def get_paginated_contents(self):
         """
