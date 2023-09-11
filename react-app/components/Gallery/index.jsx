@@ -1,9 +1,11 @@
-import { useContext, memo } from 'react';
+import { useContext, memo, useEffect, useState } from 'react';
 import ImageGallery from 'react-image-gallery';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import 'react-image-gallery/styles/css/image-gallery.css';
 import { GalleryContext } from '@contexts/galleryContext';
+import globalObject from '@constants/globalObject';
+import apiConfig from '@config/api';
 
 import './styles.css';
 // TODO: Remove this images ulr's when files come from backend
@@ -24,19 +26,84 @@ const images = [
 
 function Gallery() {
   const { isGalleryOpened, setIsGalleryOpened } = useContext(GalleryContext);
-  // TODO: uncomment this when files come from backend
-  // const formatListImagesGallery = filesToUploadList.map(({ url}) => ({ original: url, thumbnail: url }));
-  const toggleGallery = () => setIsGalleryOpened(!isGalleryOpened);
+  const [imagesList, setImagesList] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [sizeItems, setSizeItems] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [request, setRequest] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const currentPageLastItem = currentPage * 10 - 1;
+  const handleOnThumbnailClick = (_, index) => {
+    setCurrentIndex(index);
+  };
+
+  const handleOnSlide = (currentIndex) => {
+    setCurrentIndex(currentIndex);
+  };
+
+  const getFilesList = async (page = 0) => {
+    setIsLoading(true);
+
+    try {
+      const { element: globalElement } = globalObject;
+      const fileGetterHandler = globalObject.runtime.handlerUrl(globalElement, 'get_files');
+      const data = {
+        current_page: page,
+        page_size: 10
+      };
+      const filesResponse = await apiConfig.post(fileGetterHandler, data);
+      const { total_count: sizeItems, files } = filesResponse.data;
+      const formatFiles = files.map(({ external_url }) => ({
+        original: external_url,
+        thumbnail: external_url,
+      }));
+      setSizeItems(sizeItems);
+      setImagesList((prevImages) => [...prevImages, ...formatFiles]);
+      setRequest({ ...request, [page]: true });
+      console.log('filesResponse', filesResponse.data);
+      console.log('formatFiles', formatFiles);
+    } catch (error) {
+      console.log('files error', error);
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (currentPageLastItem === currentIndex && !request[currentIndex] && !isLoading) {
+      const newPage = currentPage + 1;
+      setIsLoading(true);
+      getFilesList(newPage - 1);
+      setCurrentPage(newPage);
+      setCurrentIndex(currentIndex);
+    }
+  }, [currentIndex, currentPageLastItem, request, isLoading]);
+
+  useEffect(() => {
+    getFilesList();
+  }, []);
 
   return (
-    <div className={`gallery-container ${isGalleryOpened ? 'show' : ''}`}>
+    <div className={`gallery-container`}>
       <div className="gallery-content">
-        <ImageGallery items={images} />
+        <ImageGallery
+          items={imagesList}
+          startIndex={currentIndex}
+          onThumbnailClick={handleOnThumbnailClick}
+          onSlide={handleOnSlide}
+          lazyLoad
+        />
       </div>
-      <div className="actions-container">
-        <button type="button" className="button-close" onClick={toggleGallery}>
-          <FontAwesomeIcon icon={faXmark} />
-        </button>
+      <div>
+       {/*
+         <p> currentIndex: {currentIndex}</p>
+        <p> sizeItems: {sizeItems}</p>
+        <p> currentPage: {currentPage}</p>
+        <p> currentPageLastItem: {currentPageLastItem}</p>
+
+       */}
+
       </div>
     </div>
   );

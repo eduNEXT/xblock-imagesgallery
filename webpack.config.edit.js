@@ -2,10 +2,10 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: path.resolve(__dirname, "react-app", "index.js"),
+  entry: path.resolve(__dirname, "react-app", "edit.js"),
   output: {
     path: path.resolve(__dirname, "imagesgallery", "static", "html"),
-    filename: "bundle.js",
+    filename: "bundle2.js",
     libraryTarget: "window"
   },
   module: {
@@ -42,7 +42,8 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, "react-app", "index.html"),
+      filename: "edit.html",
+      template: path.resolve(__dirname, "react-app", "edit.html"),
     }),
   ],
   resolve: {
@@ -62,5 +63,6 @@ module.exports = {
     },
     port: 3000,
     hot: true,
+    open: true,
   }
 };
