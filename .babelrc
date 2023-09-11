@@ -8,7 +8,9 @@
         "alias": {
           "@components": "./react-app/components",
           "@utils": "./react-app/utils",
-          "@contexts": "./react-app/contexts"
+          "@contexts": "./react-app/contexts",
+          "@constants": "./react-app/constants",
+          "@config": "./react-app/config"
         }
       }
     ]

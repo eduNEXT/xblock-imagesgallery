@@ -7,3 +7,13 @@
 .imagesgallery_block p {
     cursor: pointer;
 }
+
+.container__edit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container__edit > h1 {
+  font-weight: 700;
+}
