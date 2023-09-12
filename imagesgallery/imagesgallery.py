@@ -5,7 +5,6 @@ import logging
 import pkg_resources
 from django.utils import translation
 from xblock.core import XBlock
-from xblock.fields import List, Integer, Scope
 from xblock.fragment import Fragment
 from xblockutils.resources import ResourceLoader
 
@@ -16,7 +15,17 @@ from http import HTTPStatus
 
 from webob.response import Response
 
-from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+try:
+    from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+    from xmodule.contentstore.content import StaticContent
+    from cms.djangoapps.contentstore.views.assets import update_course_run_asset
+    from xmodule.contentstore.django import contentstore
+except ImportError:
+    configuration_helpers = None
+    StaticContent = None
+    update_course_run_asset = None
+    contentstore = None
+
 
 log = logging.getLogger(__name__)
 
@@ -44,31 +53,7 @@ IMAGE_CONTENT_TYPE_FOR_MONGO = {
 
 
 class ImagesGalleryXBlock(XBlock):
-    """
-    TO-DO: document what your XBlock does.
-    """
-
-    # Fields are defined on the class.  You can access them in your code as
-    # self.<fieldname>.
-
-    # TO-DO: delete count, and define your own fields.
-    contents = List(
-        display_name="Static contents uploaded by the instructor.",
-        default=[],
-        scope=Scope.settings,
-    )
-
-    current_page = Integer(
-        display_name="Current page",
-        default=0,
-        scope=Scope.user_state,
-    )
-
-    page_size = Integer(
-        display_name="Page size",
-        default=10,
-        scope=Scope.settings,
-    )
+    """XBlock for displaying a gallery of images."""
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
@@ -106,9 +91,6 @@ class ImagesGalleryXBlock(XBlock):
     def file_upload(self, request, suffix=''):
         """Handler for file upload to the course assets."""
         # Importing here to avoid circular imports
-        from cms.djangoapps.contentstore.views.assets import update_course_run_asset
-        from xmodule.contentstore.content import StaticContent
-
         for _, file in request.params.items():
             try:
                 content = update_course_run_asset(self.course_id, file.file)
@@ -118,16 +100,30 @@ class ImagesGalleryXBlock(XBlock):
                 return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
         return Response(
             status=HTTPStatus.OK,
-            json_body=self.get_asset_json_from_content(content)
+            json_body=self.get_asset_json_from_content(content),
         )
 
-    def get_asset_json_from_content(self, content):
-        """
-        Serializes the content object to a dictionary and appends it to the
-        contents list.
-        """
-        from xmodule.contentstore.content import StaticContent
+    @XBlock.json_handler
+    def get_files(self, data, suffix=''):
+        """Handler for getting images from the course assets."""
+        return self.get_paginated_contents(
+            current_page=int(data.get("current_page", 0)),
+            page_size=int(data.get("page_size", 10)),
+        )
 
+    @XBlock.json_handler
+    def remove_files(self, data, suffix=''):
+        """Handler for removing images from the course assets."""
+        from opaque_keys.edx.keys import AssetKey
+        asset_key = AssetKey.from_string(data.get("asset_key"))
+        try:
+            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset
+        except ImportError:
+            from cms.djangoapps.contentstore.views.assets import delete_asset
+        delete_asset(self.course_id, asset_key)
+
+    def get_asset_json_from_content(self, content):
+        """Serialize the content object to a JSON serializable object. """
         asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
         thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
         return {
@@ -142,12 +138,7 @@ class ImagesGalleryXBlock(XBlock):
         }
 
     def get_asset_json_from_dict(self, asset):
-        """
-        Serializes the content object to a dictionary and appends it to the
-        contents list.
-        """
-        from xmodule.contentstore.content import StaticContent
-
+        """Transform the asset dictionary into a JSON serializable object."""
         asset_url = StaticContent.serialize_asset_key_with_slash(asset["asset_key"])
         thumbnail_url = self._get_thumbnail_asset_key(asset)
         return {
@@ -162,6 +153,7 @@ class ImagesGalleryXBlock(XBlock):
         }
 
     def _get_thumbnail_asset_key(self, asset):
+        """Return the thumbnail asset key."""
         thumbnail_location = asset.get('thumbnail_location', None)
         thumbnail_asset_key = None
 
@@ -171,9 +163,7 @@ class ImagesGalleryXBlock(XBlock):
         return str(thumbnail_asset_key)
 
     def get_paginated_contents(self, current_page=0, page_size=10):
-        """
-        Returns the contents list.
-        """
+        """Return the assets paginated list."""
         query_options = {
             "current_page": current_page,
             "page_size": page_size,
@@ -189,32 +179,12 @@ class ImagesGalleryXBlock(XBlock):
             "total_count": total_count,
         }
 
-    @XBlock.json_handler
-    def get_files(self, data, suffix=''):
-        """Handler for getting images from the course assets."""
-        return self.get_paginated_contents(
-            current_page=int(data.get("current_page")),
-            page_size=int(data.get("page_size")),
-        )
-
-    @XBlock.json_handler
-    def remove_files(self, data, suffix=''):
-        """Handler for getting images from the course assets."""
-        from opaque_keys.edx.keys import AssetKey
-        asset_key = AssetKey.from_string(data.get("asset_key"))
-        try:
-            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset
-        except ImportError:
-            from cms.djangoapps.contentstore.views.assets import delete_asset
-        delete_asset(self.course_id, asset_key)
-
     def _get_assets_for_page(self, course_key, options):
-        """returns course content for given course and options"""
-        from xmodule.contentstore.django import contentstore
-        current_page = options['current_page']
-        page_size = options['page_size']
-        sort = options['sort']
-        filter_params = options['filter_params'] if options['filter_params'] else None
+        """Return course content for given course and options."""
+        current_page = options["current_page"]
+        page_size = options["page_size"]
+        sort = options["sort"]
+        filter_params = options["filter_params"] if options["filter_params"] else None
         start = current_page * page_size
         return contentstore().get_all_content_for_course(
             course_key, start=start, maxresults=page_size, sort=sort, filter_params=filter_params
