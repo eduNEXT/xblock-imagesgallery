@@ -120,18 +120,29 @@ class ImagesGalleryXBlock(XBlock):
         thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
         return Response(
             status=HTTPStatus.OK,
-            json_body={
-                "id": str(content.get_id()),
-                "display_name": content.name,
-                "url": str(asset_url),
-                "content_type": content.content_type,
-                "file_size": content.length,
-                "external_url": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), asset_url),
-                "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
-            }
+            json_body=self.get_asset_json_from_content(content)
         )
 
-    def get_asset_json(self, asset):
+    def get_asset_json_from_content(self, content):
+        """
+        Serializes the content object to a dictionary and appends it to the
+        contents list.
+        """
+        from xmodule.contentstore.content import StaticContent
+
+        asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
+        thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
+        return {
+            "id": str(content.get_id()),
+            "display_name": content.name,
+            "url": str(asset_url),
+            "content_type": content.content_type,
+            "file_size": content.length,
+            "external_url": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), asset_url),
+            "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
+        }
+
+    def get_asset_json_from_dict(self, asset):
         """
         Serializes the content object to a dictionary and appends it to the
         contents list.
@@ -142,6 +153,7 @@ class ImagesGalleryXBlock(XBlock):
         thumbnail_url = self._get_thumbnail_asset_key(asset)
         return {
             "id": asset["_id"],
+            "asset_key": str(asset["asset_key"]),
             "display_name": asset["displayname"],
             "url": str(asset_url),
             "content_type": asset["contentType"],
