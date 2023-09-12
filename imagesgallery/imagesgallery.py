@@ -20,11 +20,13 @@ try:
     from xmodule.contentstore.content import StaticContent
     from cms.djangoapps.contentstore.views.assets import update_course_run_asset
     from xmodule.contentstore.django import contentstore
+    from opaque_keys.edx.keys import AssetKey
 except ImportError:
     configuration_helpers = None
     StaticContent = None
     update_course_run_asset = None
     contentstore = None
+    AssetKey = None
 
 
 log = logging.getLogger(__name__)
@@ -90,17 +92,19 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.handler
     def file_upload(self, request, suffix=''):
         """Handler for file upload to the course assets."""
-        # Importing here to avoid circular imports
+        contents = []
         for _, file in request.params.items():
             try:
                 content = update_course_run_asset(self.course_id, file.file)
+                content.append(content)
                 # self.serialize_contents(content)
             except Exception as e:
                 log.exception(e)
                 return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
+        serialized_contents = [self.get_asset_json_from_content(content) for content in contents]
         return Response(
             status=HTTPStatus.OK,
-            json_body=self.get_asset_json_from_content(content),
+            json_body=serialized_contents,
         )
 
     @XBlock.json_handler
@@ -114,12 +118,11 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.json_handler
     def remove_files(self, data, suffix=''):
         """Handler for removing images from the course assets."""
-        from opaque_keys.edx.keys import AssetKey
         asset_key = AssetKey.from_string(data.get("asset_key"))
         try:
-            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset
+            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset  # pylint: import-outside-toplevel
         except ImportError:
-            from cms.djangoapps.contentstore.views.assets import delete_asset
+            from cms.djangoapps.contentstore.views.assets import delete_asset  # pylint: import-outside-toplevel
         delete_asset(self.course_id, asset_key)
 
     def get_asset_json_from_content(self, content):
