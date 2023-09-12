@@ -132,6 +132,7 @@ class ImagesGalleryXBlock(XBlock):
         thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
         return {
             "id": str(content.get_id()),
+            "asset_key": str(content.location),
             "display_name": content.name,
             "url": str(asset_url),
             "content_type": content.content_type,
@@ -195,6 +196,17 @@ class ImagesGalleryXBlock(XBlock):
             current_page=int(data.get("current_page")),
             page_size=int(data.get("page_size")),
         )
+
+    @XBlock.json_handler
+    def remove_files(self, data, suffix=''):
+        """Handler for getting images from the course assets."""
+        from opaque_keys.edx.keys import AssetKey
+        asset_key = AssetKey.from_string(data.get("asset_key"))
+        try:
+            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset
+        except ImportError:
+            from cms.djangoapps.contentstore.views.assets import delete_asset
+        delete_asset(self.course_id, asset_key)
 
     def _get_assets_for_page(self, course_key, options):
         """returns course content for given course and options"""
