@@ -124,14 +124,14 @@ class ImagesGalleryXBlock(XBlock):
         """
         from xmodule.contentstore.content import StaticContent
 
-        asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
-        thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
+        asset_url = StaticContent.serialize_asset_key_with_slash(asset.location)
+        thumbnail_url = StaticContent.serialize_asset_key_with_slash(asset.thumbnail_location)
         return {
-            "id": str(content.get_id()),
-            "display_name": content.name,
+            "id": str(asset.get_id()),
+            "display_name": asset.name,
             "url": str(asset_url),
-            "content_type": content.content_type,
-            "file_size": content.length,
+            "content_type": asset.content_type,
+            "file_size": asset.length,
             "external_url": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), asset_url),
             "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
         }
