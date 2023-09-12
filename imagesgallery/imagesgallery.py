@@ -116,8 +116,6 @@ class ImagesGalleryXBlock(XBlock):
             except Exception as e:
                 log.exception(e)
                 return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
-        asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
-        thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
         return Response(
             status=HTTPStatus.OK,
             json_body=self.get_asset_json_from_content(content)
