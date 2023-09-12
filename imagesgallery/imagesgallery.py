@@ -18,13 +18,11 @@ from webob.response import Response
 try:
     from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
     from xmodule.contentstore.content import StaticContent
-    from cms.djangoapps.contentstore.views.assets import update_course_run_asset
     from xmodule.contentstore.django import contentstore
     from opaque_keys.edx.keys import AssetKey
 except ImportError:
     configuration_helpers = None
     StaticContent = None
-    update_course_run_asset = None
     contentstore = None
     AssetKey = None
 
@@ -92,11 +90,15 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.handler
     def file_upload(self, request, suffix=''):
         """Handler for file upload to the course assets."""
+        try:
+            from cms.djangoapps.contentstore.views.assets import update_course_run_asset  # pylint: import-outside-toplevel
+        except ImportError:
+            from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset  # pylint: import-outside-toplevel
         contents = []
         for _, file in request.params.items():
             try:
                 content = update_course_run_asset(self.course_id, file.file)
-                content.append(content)
+                contents.append(content)
             except Exception as e:  # pylint: disable=broad-except
                 log.exception(e)
                 return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
