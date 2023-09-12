@@ -184,7 +184,7 @@ class ImagesGalleryXBlock(XBlock):
         assets, total_count = self._get_assets_for_page(self.course_id, query_options)
         serialized_assets = []
         for asset in assets:
-            serialized_assets.append(self.get_asset_json(asset))
+            serialized_assets.append(self.get_asset_json_from_dict(asset))
         return {
             "files": serialized_assets,
             "total_count": total_count,
