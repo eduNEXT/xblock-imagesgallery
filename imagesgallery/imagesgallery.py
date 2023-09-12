@@ -97,8 +97,7 @@ class ImagesGalleryXBlock(XBlock):
             try:
                 content = update_course_run_asset(self.course_id, file.file)
                 content.append(content)
-                # self.serialize_contents(content)
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-except
                 log.exception(e)
                 return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
         serialized_contents = [self.get_asset_json_from_content(content) for content in contents]
