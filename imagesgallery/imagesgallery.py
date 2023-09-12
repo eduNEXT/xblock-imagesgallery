@@ -124,35 +124,34 @@ class ImagesGalleryXBlock(XBlock):
         """
         from xmodule.contentstore.content import StaticContent
 
-        asset_url = StaticContent.serialize_asset_key_with_slash(asset.location)
-        thumbnail_url = StaticContent.serialize_asset_key_with_slash(asset.thumbnail_location)
+        asset_url = StaticContent.serialize_asset_key_with_slash(asset["asset_key"])
+        thumbnail_url = self._get_thumbnail_asset_key(asset)
         return {
-            "id": str(asset.get_id()),
-            "display_name": asset.name,
+            "id": asset["_id"],
+            "display_name": asset["displayname"],
             "url": str(asset_url),
-            "content_type": asset.content_type,
-            "file_size": asset.length,
+            "content_type": asset["contentType"],
+            "file_size": asset["length"],
             "external_url": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), asset_url),
             "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
         }
 
-    def get_paginated_contents(self):
+    def _get_thumbnail_asset_key(self, asset):
+        thumbnail_location = asset.get('thumbnail_location', None)
+        thumbnail_asset_key = None
+
+        if thumbnail_location:
+            thumbnail_path = thumbnail_location[4]
+            thumbnail_asset_key = self.course_id.make_asset_key('thumbnail', thumbnail_path)
+        return str(thumbnail_asset_key)
+
+    def get_paginated_contents(self, current_page=0, page_size=10):
         """
         Returns the contents list.
         """
-        return self.contents[self.current_page * self.page_size: (self.current_page + 1) * self.page_size]
-
-    @XBlock.json_handler
-    def get_files(self, data, suffix=''):
-        """Handler for getting images from the course assets."""
-        # self.current_page = int(data.get("current_page", self.current_page))
-        # return {
-        #     "files": self.get_paginated_contents(),
-        #     "total_count": len(self.contents),
-        # }
         query_options = {
-            "current_page": int(data.get("current_page")),
-            "page_size": int(data.get("page_size")),
+            "current_page": current_page,
+            "page_size": page_size,
             "sort": {},
             "filter_params": IMAGE_CONTENT_TYPE_FOR_MONGO,
         }
@@ -165,7 +164,15 @@ class ImagesGalleryXBlock(XBlock):
             "total_count": total_count,
         }
 
-    def _get_assets_for_page(course_key, options):
+    @XBlock.json_handler
+    def get_files(self, data, suffix=''):
+        """Handler for getting images from the course assets."""
+        return self.get_paginated_contents(
+            current_page=int(data.get("current_page")),
+            page_size=int(data.get("page_size")),
+        )
+
+    def _get_assets_for_page(self, course_key, options):
         """returns course content for given course and options"""
         from xmodule.contentstore.django import contentstore
         current_page = options['current_page']
