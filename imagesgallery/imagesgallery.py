@@ -107,6 +107,7 @@ class ImagesGalleryXBlock(XBlock):
         """Handler for file upload to the course assets."""
         # Importing here to avoid circular imports
         from cms.djangoapps.contentstore.views.assets import update_course_run_asset
+        from xmodule.contentstore.content import StaticContent
 
         for _, file in request.params.items():
             try:
@@ -115,7 +116,20 @@ class ImagesGalleryXBlock(XBlock):
             except Exception as e:
                 log.exception(e)
                 return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
-        return Response(status=HTTPStatus.OK, json_body=self.get_paginated_contents())
+        asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
+        thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
+        return Response(
+            status=HTTPStatus.OK,
+            json_body={
+                "id": str(content.get_id()),
+                "display_name": content.name,
+                "url": str(asset_url),
+                "content_type": content.content_type,
+                "file_size": content.length,
+                "external_url": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), asset_url),
+                "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
+            }
+        )
 
     def get_asset_json(self, asset):
         """
