@@ -1,12 +1,15 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const BundleTracker = require('webpack-bundle-tracker');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
+
 
 module.exports = {
   entry: path.resolve(__dirname, "react-app", "index.js"),
   output: {
-    path: path.resolve(__dirname, "imagesgallery", "static", "html"),
+    path: path.resolve(__dirname, "imagesgallery", "static", "dist"),
     filename: "bundle.js",
-    libraryTarget: "window"
+    libraryTarget: "umd"
   },
   module: {
     rules: [
@@ -44,6 +47,11 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "react-app", "index.html"),
     }),
+    new WebpackManifestPlugin({
+      seed: {
+        base_url: '/static/dist',
+      },
+    })
   ],
   resolve: {
     modules: [path.resolve(__dirname, "react-app"), "node_modules"],

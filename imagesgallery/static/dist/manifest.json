@@ -1,0 +1,5 @@
+{
+  "base_url": "/static/dist",
+  "main.js": "auto/bundle.js",
+  "index.html": "auto/index.html"
+}

@@ -1,0 +1,22 @@
+{
+  "status": "done",
+  "assets": {
+    "bundle.js": {
+      "name": "bundle.js",
+      "path": "/home/john/tutor-v/palm-16.1.1/env/build/openedx/requirements/xblock-imagesgallery/imagesgallery/static/html/bundle.js"
+    },
+    "bundle.js.LICENSE.txt": {
+      "name": "bundle.js.LICENSE.txt",
+      "path": "/home/john/tutor-v/palm-16.1.1/env/build/openedx/requirements/xblock-imagesgallery/imagesgallery/static/html/bundle.js.LICENSE.txt"
+    },
+    "index.html": {
+      "name": "index.html",
+      "path": "/home/john/tutor-v/palm-16.1.1/env/build/openedx/requirements/xblock-imagesgallery/imagesgallery/static/html/index.html"
+    }
+  },
+  "chunks": {
+    "main": [
+      "bundle.js"
+    ]
+  }
+}
