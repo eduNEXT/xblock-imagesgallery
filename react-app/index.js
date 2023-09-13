@@ -24,11 +24,12 @@ if (process.env.NODE_ENV === 'development') {
 // Production mode rendering
 function ImagesGalleryXBlock(runtime, element, context) {
   const typeRuntime = element.getAttribute('data-runtime-class');
+  const xblockId = element.getAttribute('data-usage-id');
   globalObject.runtime = runtime;
   globalObject.element = element;
   globalObject.context = context;
   globalObject.isStudioView = element && typeRuntime === 'PreviewRuntime';
-  console.log(globalObject);
+  globalObject.xblockId = xblockId;
   const rootElement = document.getElementById('images-gallery-app-root');
   const currentDateTime = new Date().getTime();
   const dynamicRootId = `images-gallery-app-root-${currentDateTime}`;

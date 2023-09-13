@@ -87,6 +87,29 @@ class ImagesGalleryXBlock(XBlock):
         frag.initialize_js('ImagesGalleryXBlock')
         return frag
 
+    def studio_view(self, context=None) -> Fragment:
+        """
+        The studio view of the ImagesGalleryXBlock, shown to instructors for editing the XBlock.
+        Args:
+            context (dict, optional): Context for the template. Defaults to None.
+        Returns:
+            Fragment: The fragment to render
+        """
+        html = self.resource_string("static/html/imagesgallery_edit.html")
+        frag = Fragment(html.format(self=self))
+        frag.add_css(self.resource_string("static/css/imagesgallery.css"))
+
+        # Add i18n js
+        statici18n_js_url = self._get_statici18n_js_url()
+        if statici18n_js_url:
+            frag.add_javascript_url(self.runtime.local_resource_url(self, statici18n_js_url))
+
+        # Adding the correct route of the bundle
+        frag.add_javascript(self.resource_string("static/js/src/imagesgalleryEdit.js"))
+        frag.initialize_js('ImagesGalleryXBlockEdit')
+
+        return frag
+
     @XBlock.handler
     def file_upload(self, request, suffix=''):
         """Handler for file upload to the course assets."""

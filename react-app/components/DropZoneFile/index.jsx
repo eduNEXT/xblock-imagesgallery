@@ -2,12 +2,8 @@ import React, { useCallback, useContext, memo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileImage } from '@fortawesome/free-regular-svg-icons';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { GalleryContext } from '@contexts/galleryContext';
 import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorageUtils';
-import { sizeFileFormat } from '@utils/fileUtils';
 import globalObject from '@constants/globalObject';
 import apiConfig from '@config/api';
 import './styles.css';
@@ -24,11 +20,10 @@ const fileTypesAllowed = {
 const DropZoneFile = () => {
   const { setFilesToUploadList } = useContext(GalleryContext);
 
-  async function uploadAndFetchFiles(formData) {
+  async function uploadAndFetchFiles(formData, pageSize = 10) {
     try {
-      const { element: globalElement } = globalObject;
+      const { element: globalElement, xblockId } = globalObject;
       const fileUploadHandler = globalObject.runtime.handlerUrl(globalElement, 'file_upload');
-      const fileGetterHandler = globalObject.runtime.handlerUrl(globalElement, 'get_files');
 
       // Upload the file
       const uploadResponse = await apiConfig.post(fileUploadHandler, formData, {
@@ -38,18 +33,34 @@ const DropZoneFile = () => {
       });
 
       if (uploadResponse.status === 200) {
-        console.log('File uploaded successfully');
 
-        // Fetch files
-        const data = {
-          current_page: 0,
-          page_size: 10
-        };
+        const { data: imagesUploaded } = uploadResponse;
 
-        const filesResponse = await apiConfig.post(fileGetterHandler, data);
+        const formatImagesUploaded = imagesUploaded.map(({ id, asset_key, display_name, file_size, external_url }) => ({
+          id,
+          assetKey: asset_key,
+          name: display_name,
+          size: file_size,
+          url: external_url
+        }));
+
+        const filesSaved = getItemLocalStorage(xblockId) || [];
+
+        const filesUnloaded = [...filesSaved, ...formatImagesUploaded];
+        setFilesToUploadList(filesUnloaded);
+        setItemLocalStorage(xblockId, filesUnloaded);
+        // TODO: get data from backend when we have fixed the gallery data
+        /* // Fetch files
+         const data = {
+            current_page: 0,
+            page_size: pageSize
+          };
+
+        //const filesResponse = await apiConfig.post(fileGetterHandler, data);
+        // const {data: uploadedFiles } = filesResponse.files; */
 
         // Handle the response here
-        console.log(filesResponse.data);
+        // console.log(filesResponse.data);
       } else {
         console.error('File upload failed');
       }
@@ -67,8 +78,9 @@ const DropZoneFile = () => {
     });
 
     const { element: globalElement } = globalObject;
+    const filesLength = allowedFiles.length;
     if (globalElement) {
-      uploadAndFetchFiles(formData);
+      uploadAndFetchFiles(formData, filesLength);
     }
   }, []);
 
