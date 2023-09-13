@@ -9,7 +9,6 @@ import { getItemLocalStorage } from '@utils/localStorageUtils';
 import './App.css';
 
 const App = () => {
-  const [isGalleryOpened, setIsGalleryOpened] = useState(false);
   const [filesToUploadList, setFilesToUploadList] = useState([]);
   const { xblockId, isStudioView } = globalObject;
 
@@ -19,7 +18,7 @@ const App = () => {
   }, []);
 
   return (
-    <GalleryContext.Provider value={{ isGalleryOpened, setIsGalleryOpened, filesToUploadList, setFilesToUploadList }}>
+    <GalleryContext.Provider value={{ filesToUploadList, setFilesToUploadList }}>
       <div className="xblock-images-gallery__container">
         <h1 className="xblock-images-gallery__title">Images Gallery XBlock</h1>
         {isStudioView ? (

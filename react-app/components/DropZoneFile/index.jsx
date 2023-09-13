@@ -20,7 +20,7 @@ const fileTypesAllowed = {
 const DropZoneFile = () => {
   const { setFilesToUploadList } = useContext(GalleryContext);
 
-  async function uploadAndFetchFiles(formData, pageSize = 10) {
+  async function uploadAndFetchFiles(formData, _ = 10) {
     try {
       const { element: globalElement, xblockId } = globalObject;
       const fileUploadHandler = globalObject.runtime.handlerUrl(globalElement, 'file_upload');
