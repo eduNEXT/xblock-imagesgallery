@@ -55,6 +55,13 @@ IMAGE_CONTENT_TYPE_FOR_MONGO = {
 class ImagesGalleryXBlock(XBlock):
     """XBlock for displaying a gallery of images."""
 
+    @property
+    def block_id(self):
+        """
+        Return the usage_id of the block.
+        """
+        return str(self.scope_ids.usage_id)
+
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
         data = pkg_resources.resource_string(__name__, path)
