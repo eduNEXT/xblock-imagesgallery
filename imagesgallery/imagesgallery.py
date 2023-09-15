@@ -125,6 +125,7 @@ class ImagesGalleryXBlock(XBlock):
     def remove_files(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handler for removing images from the course assets."""
         asset_key = AssetKey.from_string(data.get("asset_key"))
+        # Temporary fix for supporting both contentstore assets management versions (master / Palm)
         try:
             from cms.djangoapps.contentstore.asset_storage_handler import delete_asset  # pylint: disable=import-outside-toplevel
         except ImportError:
