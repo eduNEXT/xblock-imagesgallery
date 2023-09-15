@@ -18,13 +18,11 @@ from webob.response import Response
 try:
     from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
     from xmodule.contentstore.content import StaticContent
-    from cms.djangoapps.contentstore.views.assets import update_course_run_asset
     from xmodule.contentstore.django import contentstore
     from opaque_keys.edx.keys import AssetKey
 except ImportError:
     configuration_helpers = None
     StaticContent = None
-    update_course_run_asset = None
     contentstore = None
     AssetKey = None
 
@@ -56,6 +54,13 @@ IMAGE_CONTENT_TYPE_FOR_MONGO = {
 
 class ImagesGalleryXBlock(XBlock):
     """XBlock for displaying a gallery of images."""
+
+    @property
+    def block_id(self):
+        """
+        Return the usage_id of the block.
+        """
+        return str(self.scope_ids.usage_id)
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
@@ -89,14 +94,41 @@ class ImagesGalleryXBlock(XBlock):
         frag.initialize_js('ImagesGalleryXBlock')
         return frag
 
+    def studio_view(self, context=None) -> Fragment:
+        """
+        The studio view of the ImagesGalleryXBlock, shown to instructors for editing the XBlock.
+        Args:
+            context (dict, optional): Context for the template. Defaults to None.
+        Returns:
+            Fragment: The fragment to render
+        """
+        html = self.resource_string("static/html/imagesgallery_edit.html")
+        frag = Fragment(html.format(self=self))
+        frag.add_css(self.resource_string("static/css/imagesgallery.css"))
+
+        # Add i18n js
+        statici18n_js_url = self._get_statici18n_js_url()
+        if statici18n_js_url:
+            frag.add_javascript_url(self.runtime.local_resource_url(self, statici18n_js_url))
+
+        # Adding the correct route of the bundle
+        frag.add_javascript(self.resource_string("static/js/src/imagesgalleryEdit.js"))
+        frag.initialize_js('ImagesGalleryXBlockEdit')
+
+        return frag
+
     @XBlock.handler
     def file_upload(self, request, suffix=''):
         """Handler for file upload to the course assets."""
+        try:
+            from cms.djangoapps.contentstore.views.assets import update_course_run_asset  # pylint: import-outside-toplevel
+        except ImportError:
+            from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset  # pylint: import-outside-toplevel
         contents = []
         for _, file in request.params.items():
             try:
                 content = update_course_run_asset(self.course_id, file.file)
-                content.append(content)
+                contents.append(content)
             except Exception as e:  # pylint: disable=broad-except
                 log.exception(e)
                 return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
