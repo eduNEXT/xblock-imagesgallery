@@ -1,27 +1,64 @@
 """TO-DO: Write a description of what this XBlock is."""
 
+import logging
 import re
+from http import HTTPStatus
+from urllib.parse import urljoin
+
 import pkg_resources
+from django.conf import settings
 from django.utils import translation
+from webob.response import Response
 from xblock.core import XBlock
-from xblock.fields import Integer, Scope
 from xblock.fragment import Fragment
 from xblockutils.resources import ResourceLoader
 
+try:
+    from opaque_keys.edx.keys import AssetKey
+    from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+    from xmodule.contentstore.content import StaticContent
+    from xmodule.contentstore.django import contentstore
+except ImportError:
+    configuration_helpers = None
+    StaticContent = None
+    contentstore = None
+    AssetKey = None
+
+
+log = logging.getLogger(__name__)
+
+
+IMAGE_CONTENT_TYPE_FOR_MONGO = {
+    '$or': [
+        {'contentType':
+            {'$in':
+                [
+                    'image/png',
+                    'image/jpeg',
+                    'image/jpg',
+                    'image/gif',
+                    'image/tiff',
+                    'image/tif',
+                    'image/x-icon',
+                    'image/svg+xml',
+                    'image/bmp',
+                    'image/x-ms-bmp'
+                ]
+            }
+        }
+    ]
+}
+
 
 class ImagesGalleryXBlock(XBlock):
-    """
-    TO-DO: document what your XBlock does.
-    """
+    """XBlock for displaying a gallery of images."""
 
-    # Fields are defined on the class.  You can access them in your code as
-    # self.<fieldname>.
-
-    # TO-DO: delete count, and define your own fields.
-    count = Integer(
-        default=0, scope=Scope.user_state,
-        help="A simple counter, to show something happening",
-    )
+    @property
+    def block_id(self):
+        """
+        Return the usage_id of the block.
+        """
+        return str(self.scope_ids.usage_id)
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
@@ -55,20 +92,114 @@ class ImagesGalleryXBlock(XBlock):
         frag.initialize_js('ImagesGalleryXBlock')
         return frag
 
-    # TO-DO: change this handler to perform your own actions.  You may need more
-    # than one handler, or you may not need any handlers at all.
-    @XBlock.json_handler
-    def increment_count(self, data, suffix=''):
-        """
-        An example handler, which increments the data.
-        """
-        if suffix:
-            pass  # TO-DO: Use the suffix when storing data.
-        # Just to show data coming in...
-        assert data['hello'] == 'world'
+    @XBlock.handler
+    def file_upload(self, request, suffix=''):  # pylint: disable=unused-argument
+        """Handler for file upload to the course assets."""
+        try:
+            from cms.djangoapps.contentstore.views.assets import update_course_run_asset  # pylint: disable=import-outside-toplevel
+        except ImportError:
+            from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset  # pylint: disable=import-outside-toplevel
+        contents = []
+        for _, file in request.params.items():
+            try:
+                content = update_course_run_asset(self.course_id, file.file)
+                contents.append(content)
+            except Exception as e:  # pylint: disable=broad-except
+                log.exception(e)
+                return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
+        serialized_contents = [self.get_asset_json_from_content(content) for content in contents]
+        return Response(
+            status=HTTPStatus.OK,
+            json_body=serialized_contents,
+        )
 
-        self.count += 1
-        return {"count": self.count}
+    @XBlock.json_handler
+    def get_files(self, data, suffix=''):  # pylint: disable=unused-argument
+        """Handler for getting images from the course assets."""
+        return self.get_paginated_contents(
+            current_page=int(data.get("current_page", 0)),
+            page_size=int(data.get("page_size", 10)),
+        )
+
+    @XBlock.json_handler
+    def remove_files(self, data, suffix=''):  # pylint: disable=unused-argument
+        """Handler for removing images from the course assets."""
+        asset_key = AssetKey.from_string(data.get("asset_key"))
+        # Temporary fix for supporting both contentstore assets management versions (master / Palm)
+        try:
+            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset  # pylint: disable=import-outside-toplevel
+        except ImportError:
+            from cms.djangoapps.contentstore.views.assets import delete_asset  # pylint: disable=import-outside-toplevel
+        delete_asset(self.course_id, asset_key)
+
+    def get_asset_json_from_content(self, content):
+        """Serialize the content object to a JSON serializable object. """
+        asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
+        thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
+        return {
+            "id": str(content.get_id()),
+            "asset_key": str(content.location),
+            "display_name": content.name,
+            "url": str(asset_url),
+            "content_type": content.content_type,
+            "file_size": content.length,
+            "external_url": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), asset_url),
+            "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
+        }
+
+    def get_asset_json_from_dict(self, asset):
+        """Transform the asset dictionary into a JSON serializable object."""
+        asset_url = StaticContent.serialize_asset_key_with_slash(asset["asset_key"])
+        thumbnail_url = self._get_thumbnail_asset_key(asset)
+        return {
+            "id": asset["_id"],
+            "asset_key": str(asset["asset_key"]),
+            "display_name": asset["displayname"],
+            "url": str(asset_url),
+            "content_type": asset["contentType"],
+            "file_size": asset["length"],
+            "external_url": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), asset_url),
+            "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
+        }
+
+    def _get_thumbnail_asset_key(self, asset):
+        """Return the thumbnail asset key."""
+        thumbnail_location = asset.get('thumbnail_location', None)
+        thumbnail_asset_key = None
+
+        if thumbnail_location:
+            thumbnail_path = thumbnail_location[4]
+            thumbnail_asset_key = self.course_id.make_asset_key('thumbnail', thumbnail_path)
+        return str(thumbnail_asset_key)
+
+    def get_paginated_contents(self, current_page=0, page_size=10):
+        """Return the assets paginated list."""
+        query_options = {
+            "current_page": current_page,
+            "page_size": page_size,
+            "sort": {},
+            "filter_params": IMAGE_CONTENT_TYPE_FOR_MONGO,
+        }
+        assets, total_count = self._get_assets_for_page(self.course_id, query_options)
+        serialized_assets = []
+        for asset in assets:
+            serialized_assets.append(self.get_asset_json_from_dict(asset))
+        return {
+            "files": serialized_assets,
+            "total_count": total_count,
+        }
+
+    def _get_assets_for_page(self, course_key, options):
+        """Return course content for given course and options."""
+        current_page = options["current_page"]
+        page_size = options["page_size"]
+        sort = options["sort"]
+        filter_params = options["filter_params"] if options["filter_params"] else None
+        start = current_page * page_size
+        return contentstore().get_all_content_for_course(
+            course_key, start=start, maxresults=page_size, sort=sort, filter_params=filter_params
+        )
+
 
     # TO-DO: change this to create the scenarios you'd like to see in the
     # workbench while developing your XBlock.
