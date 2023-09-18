@@ -1,25 +1,23 @@
 """TO-DO: Write a description of what this XBlock is."""
 
-import re
 import logging
+import re
+from http import HTTPStatus
+from urllib.parse import urljoin
+
 import pkg_resources
+from django.conf import settings
 from django.utils import translation
+from webob.response import Response
 from xblock.core import XBlock
 from xblock.fragment import Fragment
 from xblockutils.resources import ResourceLoader
 
-from django.conf import settings
-
-from urllib.parse import urljoin
-from http import HTTPStatus
-
-from webob.response import Response
-
 try:
+    from opaque_keys.edx.keys import AssetKey
     from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
     from xmodule.contentstore.content import StaticContent
     from xmodule.contentstore.django import contentstore
-    from opaque_keys.edx.keys import AssetKey
 except ImportError:
     configuration_helpers = None
     StaticContent = None
@@ -124,6 +122,13 @@ class ImagesGalleryXBlock(XBlock):
             from cms.djangoapps.contentstore.views.assets import update_course_run_asset  # pylint: import-outside-toplevel
         except ImportError:
             from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset  # pylint: import-outside-toplevel
+    @XBlock.handler
+    def file_upload(self, request, suffix=''):  # pylint: disable=unused-argument
+        """Handler for file upload to the course assets."""
+        try:
+            from cms.djangoapps.contentstore.views.assets import update_course_run_asset  # pylint: disable=import-outside-toplevel
+        except ImportError:
+            from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset  # pylint: disable=import-outside-toplevel
         contents = []
         for _, file in request.params.items():
             try:
@@ -139,7 +144,7 @@ class ImagesGalleryXBlock(XBlock):
         )
 
     @XBlock.json_handler
-    def get_files(self, data, suffix=''):
+    def get_files(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handler for getting images from the course assets."""
         return self.get_paginated_contents(
             current_page=int(data.get("current_page", 0)),
@@ -147,13 +152,14 @@ class ImagesGalleryXBlock(XBlock):
         )
 
     @XBlock.json_handler
-    def remove_files(self, data, suffix=''):
+    def remove_files(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handler for removing images from the course assets."""
         asset_key = AssetKey.from_string(data.get("asset_key"))
+        # Temporary fix for supporting both contentstore assets management versions (master / Palm)
         try:
-            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset  # pylint: import-outside-toplevel
+            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset  # pylint: disable=import-outside-toplevel
         except ImportError:
-            from cms.djangoapps.contentstore.views.assets import delete_asset  # pylint: import-outside-toplevel
+            from cms.djangoapps.contentstore.views.assets import delete_asset  # pylint: disable=import-outside-toplevel
         delete_asset(self.course_id, asset_key)
 
     def get_asset_json_from_content(self, content):
