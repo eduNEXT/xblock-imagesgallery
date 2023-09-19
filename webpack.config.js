@@ -51,7 +51,9 @@ module.exports = {
     alias: {
       '@components': path.resolve(__dirname, 'react-app/components'),
       '@utils': path.resolve(__dirname, 'react-app/utils'),
-      '@contexts': path.resolve(__dirname, 'react-app/contexts')
+      '@contexts': path.resolve(__dirname, 'react-app/contexts'),
+      '@constants': path.resolve(__dirname, 'react-app/constants'),
+      "@config": path.resolve(__dirname, 'react-app/config'),
     }
   },
   devServer: {

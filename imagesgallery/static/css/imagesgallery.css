@@ -1,9 +1,20 @@
 /* CSS for ImagesGalleryXBlock */
 
 .imagesgallery_block .count {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .imagesgallery_block p {
-    cursor: pointer;
+  cursor: pointer;
 }
+
+.container__edit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container__edit > h1 {
+  font-weight: 700;
+}
+
