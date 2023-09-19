@@ -18,12 +18,3 @@
   font-weight: 700;
 }
 
-.container__edit {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.container__edit > h1 {
-  font-weight: 700;
-}
