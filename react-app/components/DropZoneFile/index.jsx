@@ -1,11 +1,13 @@
-import React, { useCallback, useContext, memo } from 'react';
+import React, { useCallback, useContext, useState, memo } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { StatusCodes } from 'http-status-codes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileImage } from '@fortawesome/free-regular-svg-icons';
 import { GalleryContext } from '@contexts/galleryContext';
 import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorageUtils';
 import globalObject from '@constants/globalObject';
 import apiConfig from '@config/api';
+import ErrorMessage from '@components/ErrorMessage';
 import './styles.css';
 
 const fileTypesAllowed = {
@@ -18,9 +20,11 @@ const fileTypesAllowed = {
 };
 
 const DropZoneFile = () => {
-  const { setFilesToUploadList } = useContext(GalleryContext);
+  const { setFilesToUploadList, galleryErrorMessage } = useContext(GalleryContext);
+  const [dropZoneErrorMessage, setDropZoneErrorMessage] = useState(null);
 
-  async function uploadAndFetchFiles(formData, _ = 10) {
+  async function uploadAndFetchFiles(formData) {
+    let filesToUploadFailedMessage = '';
     try {
       const { element: globalElement, xblockId } = globalObject;
       const fileUploadHandler = globalObject.runtime.handlerUrl(globalElement, 'file_upload');
@@ -32,8 +36,7 @@ const DropZoneFile = () => {
         }
       });
 
-      if (uploadResponse.status === 200) {
-
+      if (uploadResponse.status === StatusCodes.OK) {
         const { data: imagesUploaded } = uploadResponse;
 
         const formatImagesUploaded = imagesUploaded.map(({ id, asset_key, display_name, file_size, external_url }) => ({
@@ -49,23 +52,15 @@ const DropZoneFile = () => {
         const filesUnloaded = [...filesSaved, ...formatImagesUploaded];
         setFilesToUploadList(filesUnloaded);
         setItemLocalStorage(xblockId, filesUnloaded);
-        // TODO: get data from backend when we have fixed the gallery data
-        /* // Fetch files
-         const data = {
-            current_page: 0,
-            page_size: pageSize
-          };
-
-        //const filesResponse = await apiConfig.post(fileGetterHandler, data);
-        // const {data: uploadedFiles } = filesResponse.files; */
-
-        // Handle the response here
-        // console.log(filesResponse.data);
+        setDropZoneErrorMessage(null);
       } else {
-        console.error('File upload failed');
+        filesToUploadFailedMessage = gettext('File upload failed');
+        setDropZoneErrorMessage(filesToUploadFailedMessage);
       }
     } catch (error) {
       console.error('Error:', error);
+      filesToUploadFailedMessage = gettext('It occurred an unexpected error');
+      setDropZoneErrorMessage(filesToUploadFailedMessage);
     }
   }
 
@@ -78,9 +73,8 @@ const DropZoneFile = () => {
     });
 
     const { element: globalElement } = globalObject;
-    const filesLength = allowedFiles.length;
     if (globalElement) {
-      uploadAndFetchFiles(formData, filesLength);
+      uploadAndFetchFiles(formData);
     }
   }, []);
 
@@ -88,11 +82,12 @@ const DropZoneFile = () => {
 
   return (
     <div className="xblock-images-gallery__file-uploader">
-      <div {...getRootProps()} className={`dropzone ${isDragActive ? 'active' : ''}`}>
+      <div {...getRootProps()} className={`xblock-images-gallery__dropzone ${isDragActive ? 'active' : ''}`}>
         <input {...getInputProps()} />
         <p>{gettext('Drag & drop files here, or click to select files')}</p>
         <FontAwesomeIcon icon={faFileImage} style={{ fontSize: '50px', color: '#007bff' }} />
       </div>
+      {(dropZoneErrorMessage || galleryErrorMessage) && (<ErrorMessage message={dropZoneErrorMessage || galleryErrorMessage } />)}
     </div>
   );
 };

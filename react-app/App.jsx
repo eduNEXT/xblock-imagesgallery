@@ -10,6 +10,7 @@ import './App.css';
 
 const App = () => {
   const [filesToUploadList, setFilesToUploadList] = useState([]);
+  const [galleryErrorMessage, setGalleryErrorMessage] = useState(null);
   const { xblockId, isStudioView } = globalObject;
 
   useEffect(() => {
@@ -18,7 +19,8 @@ const App = () => {
   }, []);
 
   return (
-    <GalleryContext.Provider value={{ filesToUploadList, setFilesToUploadList }}>
+    <GalleryContext.Provider
+      value={{ filesToUploadList, setFilesToUploadList, galleryErrorMessage, setGalleryErrorMessage }}>
       <div className="xblock-images-gallery__container">
         <h1 className="xblock-images-gallery__title">Images Gallery XBlock</h1>
         {isStudioView ? (

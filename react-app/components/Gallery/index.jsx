@@ -3,6 +3,7 @@ import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
 import globalObject from '@constants/globalObject';
 import apiConfig from '@config/api';
+import ErrorMessage from '@components/ErrorMessage';
 
 import './styles.css';
 
@@ -15,16 +16,30 @@ function Gallery() {
   const [currentPage, setCurrentPage] = useState(1);
   const [fetchedPages, setFetchedPages] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [galleryErrorMessage, setGalleryErrorMessage] = useState(null);
   const currentPageLastItem = currentPage * itemsPerPage - 1;
 
+  /**
+   * When a thumbnail in the gallery is clicked
+   * @param {ClickEvent} _ the event won't be used so we use _
+   * @param {number} index index of the thumbnail in the gallery
+   */
   const handleOnThumbnailClick = (_, index) => {
     setCurrentIndex(index);
   };
 
+  /**
+   * Gets the index of the current file when previous/next/thumbnail/ are clicked
+   * @param {number} currentIndex page that will be fetched
+   */
   const handleOnSlide = (currentIndex) => {
     setCurrentIndex(currentIndex);
   };
 
+  /**
+   * Gets the files from backend with a page index given
+   * @param {number} page page that will be fetched
+   */
   const fetchUploadedFiles = async (page = 0) => {
     setIsLoading(true);
 
@@ -47,7 +62,8 @@ function Gallery() {
       setImagesList((prevImages) => [...prevImages, ...formatImages]);
       setFetchedPages({ ...fetchedPages, [page]: true });
     } catch (error) {
-      console.log('files error', error);
+      const errorMessage = gettext('It has occurred an unexpected error');
+      setGalleryErrorMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +91,7 @@ function Gallery() {
   }
 
   return (
-    <div className={`gallery-container`}>
+    <div className="gallery-container">
       <div className="gallery-content">
         <ImageGallery
           items={imagesList}
@@ -85,6 +101,7 @@ function Gallery() {
           lazyLoad
         />
       </div>
+      {galleryErrorMessage && (<ErrorMessage message={galleryErrorMessage} />)}
     </div>
   );
 }

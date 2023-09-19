@@ -12,7 +12,7 @@ import './styles.css';
 function ImageItem(props) {
   const { id: idImageItem, url, name, size, assetKey } = props;
   const [isHovered, setIsHovered] = useState(false);
-  const {setFilesToUploadList } = useContext(GalleryContext);
+  const {setFilesToUploadList, setGalleryErrorMessage } = useContext(GalleryContext);
 
   // Event triggered when the mouse is over current the image.
   const handleMouseEnter = () => {
@@ -35,9 +35,11 @@ function ImageItem(props) {
       const filesToUploadListUpdated = filesToUploadListStorage.filter(({ id }) => id !== idImageItem);
       setItemLocalStorage(xblockId, filesToUploadListUpdated);
       setFilesToUploadList(filesToUploadListUpdated);
+      setGalleryErrorMessage(null);
 
     } catch (error) {
-      console.log('it failed to delete file', error);
+      const deleteImageErrorMessage = gettext('it failed to delete file');
+      setGalleryErrorMessage(deleteImageErrorMessage);
     }
   };
 

@@ -1,4 +1,4 @@
-.dropzone {
+.xblock-images-gallery__dropzone {
   border: 2px dashed #cccccc;
   border-radius: 4px;
   padding: 20px;
@@ -10,11 +10,11 @@
   padding: 16px;
 }
 
-.dropzone .active {
+.xblock-images-gallery__dropzone .active {
   border-color: #007bff;
 }
 
-.xblock-images-gallery__file-uploader div {
+.xblock-images-gallery__dropzone {
   margin-top: 20px;
   border: 2px dashed black;
   border-radius: 4px;
@@ -26,7 +26,7 @@
   padding: 16px;
 }
 
-.dropzone.active {
+.xblock-images-gallery__dropzone.active {
   border-color: #007bff;
   background-color: #f9f9f9;
 }
