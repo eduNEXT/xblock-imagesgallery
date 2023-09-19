@@ -7,6 +7,32 @@
 .gallery-content {
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+.image-gallery {
+  width: 100%;
+  height: auto;
+}
+
+.image-gallery-slide img {
+  width: 100%;
+  height: 500px;
+  max-height: 80vh;
+  object-fit: cover;
+  overflow: hidden;
+  object-position: center center;
+}
+
+.fullscreen .image-gallery-slide img {
+  width: 100%;
+  height: 90vh;
+}
+
+.image-gallery-thumbnail img {
+  width: 100px;
+  height: 60px;
+  object-fit: cover;
 }
 
 .button-close {

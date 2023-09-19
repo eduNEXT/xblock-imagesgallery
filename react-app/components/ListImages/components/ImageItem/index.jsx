@@ -10,7 +10,7 @@ import './styles.css';
 function ImageItem(props) {
   const { id: idImageItem, url, name, size } = props;
   const [isHovered, setIsHovered] = useState(false);
-  const { setIsGalleryOpened, setFilesToUploadList } = useContext(GalleryContext);
+  const {setFilesToUploadList, setGalleryErrorMessage } = useContext(GalleryContext);
 
   // Event triggered when the mouse is over current the image.
   const handleMouseEnter = () => {
@@ -22,17 +22,23 @@ function ImageItem(props) {
     setIsHovered(false);
   };
 
-  // Callback triggered to open the gallery.
-  const handleOpenGallery = () => {
-    setIsGalleryOpened(true);
-  };
-
   // Callback triggered to delete the current image.
-  const handleDeleteFile = () => {
-    const filesToUploadListStorage = getItemLocalStorage('filesToUploadList') || [];
-    const filesToUploadListUpdated = filesToUploadListStorage.filter(({ id }) => id !== idImageItem);
-    setItemLocalStorage('filesToUploadList', filesToUploadListUpdated);
-    setFilesToUploadList(filesToUploadListUpdated);
+  const handleDeleteFile = async () => {
+    try {
+      const { element: globalElement, xblockId } = globalObject;
+      const fileDeleteHandler = globalObject.runtime.handlerUrl(globalElement, 'remove_files');
+      const data = { asset_key: assetKey };
+      await apiConfig.post(fileDeleteHandler, data);
+      const filesToUploadListStorage = getItemLocalStorage(xblockId) || [];
+      const filesToUploadListUpdated = filesToUploadListStorage.filter(({ id }) => id !== idImageItem);
+      setItemLocalStorage(xblockId, filesToUploadListUpdated);
+      setFilesToUploadList(filesToUploadListUpdated);
+      setGalleryErrorMessage(null);
+
+    } catch (error) {
+      const deleteImageErrorMessage = gettext('it failed to delete file');
+      setGalleryErrorMessage(deleteImageErrorMessage);
+    }
   };
 
   return (

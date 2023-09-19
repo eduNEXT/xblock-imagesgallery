@@ -1,0 +1,17 @@
+.error-message {
+  display: flex;
+  color: red;
+  font-weight: bold;
+  flex-direction: row;
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.error-icon {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.error-text {
+  font-size: 16px;
+}
