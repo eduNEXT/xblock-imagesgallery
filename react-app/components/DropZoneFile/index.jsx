@@ -23,6 +23,14 @@ const DropZoneFile = () => {
   const { setFilesToUploadList, galleryErrorMessage } = useContext(GalleryContext);
   const [dropZoneErrorMessage, setDropZoneErrorMessage] = useState(null);
 
+  /**
+   * Uploads files using the provided form data and fetches the uploaded files' information.
+   *
+   * @async
+   * @function
+   * @param {FormData} formData - The FormData containing files to be uploaded.
+   * @returns {Promise<void>} - A Promise that resolves once the upload is complete.
+   */
   async function uploadAndFetchFiles(formData) {
     let filesToUploadFailedMessage = '';
     try {
@@ -64,55 +72,6 @@ const DropZoneFile = () => {
     }
   }
 
-  async function uploadAndFetchFiles(formData, pageSize = 10) {
-    try {
-      const { element: globalElement, xblockId } = globalObject;
-      const fileUploadHandler = globalObject.runtime.handlerUrl(globalElement, 'file_upload');
-
-      // Upload the file
-      const uploadResponse = await apiConfig.post(fileUploadHandler, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      if (uploadResponse.status === 200) {
-
-        const { data: imagesUploaded } = uploadResponse;
-
-        const formatImagesUploaded = imagesUploaded.map(({ id, asset_key, display_name, file_size, external_url }) => ({
-          id,
-          assetKey: asset_key,
-          name: display_name,
-          size: file_size,
-          url: external_url
-        }));
-
-        const filesSaved = getItemLocalStorage(xblockId) || [];
-
-        const filesUnloaded = [...filesSaved, ...formatImagesUploaded];
-        setFilesToUploadList(filesUnloaded);
-        setItemLocalStorage(xblockId, filesUnloaded);
-        // TODO: get data from backend when we have fixed the gallery data
-        /* // Fetch files
-         const data = {
-            current_page: 0,
-            page_size: pageSize
-          };
-
-        //const filesResponse = await apiConfig.post(fileGetterHandler, data);
-        // const {data: uploadedFiles } = filesResponse.files; */
-
-        // Handle the response here
-        // console.log(filesResponse.data);
-      } else {
-        console.error('File upload failed');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  }
-
   // Callback executed when files are dropped to the drop zone
   const onDrop = useCallback((allowedFiles) => {
     // Create a FormData object to send the file to the server
@@ -136,7 +95,9 @@ const DropZoneFile = () => {
         <p>{gettext('Drag & drop files here, or click to select files')}</p>
         <FontAwesomeIcon icon={faFileImage} style={{ fontSize: '50px', color: '#007bff' }} />
       </div>
-      {(dropZoneErrorMessage || galleryErrorMessage) && (<ErrorMessage message={dropZoneErrorMessage || galleryErrorMessage } />)}
+      {(dropZoneErrorMessage || galleryErrorMessage) && (
+        <ErrorMessage message={dropZoneErrorMessage || galleryErrorMessage} />
+      )}
     </div>
   );
 };
