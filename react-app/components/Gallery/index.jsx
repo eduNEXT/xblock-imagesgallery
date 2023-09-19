@@ -22,7 +22,7 @@ function Gallery() {
   /**
    * When a thumbnail in the gallery is clicked
    * @param {ClickEvent} _ the event won't be used so we use _
-   * @param {number} index index of the thumbnail in the gallery
+   * @param {number} index it's the thumbnail's index in the gallery
    */
   const handleOnThumbnailClick = (_, index) => {
     setCurrentIndex(index);

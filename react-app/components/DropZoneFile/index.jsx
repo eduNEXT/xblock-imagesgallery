@@ -67,7 +67,7 @@ const DropZoneFile = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      filesToUploadFailedMessage = gettext('It occurred an unexpected error');
+      filesToUploadFailedMessage = gettext('An unexpected error occurred');
       setDropZoneErrorMessage(filesToUploadFailedMessage);
     }
   }
