@@ -1,7 +1,6 @@
 """TO-DO: Write a description of what this XBlock is."""
 
 import logging
-import re
 import os
 from http import HTTPStatus
 from urllib.parse import urljoin
@@ -99,9 +98,6 @@ class ImagesGalleryXBlock(XBlock):
         # Main function name for the XBlock
         js_xblock_function = f"XBlockMain{xblock_id_splitted}"
         react_app_root_id = f"images-gallery-app-root-{xblock_id_splitted}"
-
-        # Create an HTML fragment with a unique ID for the React app root
-        frag_html = f"<div id='{react_app_root_id}'></div>"
 
         # Read the JavaScript content from the bundle file
         js_content = self.read_file("static/html/bundle.js")
