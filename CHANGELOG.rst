@@ -16,14 +16,6 @@ Unreleased
 
 *
 
-0.1.0 – 2023-08-31
-**********************************************
-
-Added
-=====
-
-* First release on PyPI.
-
 0.2.0 - 2023-09-06
 **********************************************
 
@@ -32,10 +24,19 @@ Added
 
 * Introduced the `react-dropzone` library for drag-and-drop image file uploads.
 * Added the `react-images-gallery` library for image carousel functionality.
-
+* Course assets management Xblock handlers for images.
 
 Changed
 =======
 
 * Modified the XBlock to allow users to select and preview images in the dropzone.
 * Enhanced the XBlock to enable users to view the images gallery.
+
+0.1.0 – 2023-08-31
+**********************************************
+
+Added
+=====
+
+* First release on PyPI.
+
