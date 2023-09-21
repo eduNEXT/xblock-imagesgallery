@@ -214,16 +214,18 @@ class ImagesGalleryXBlock(XBlock):
             from cms.djangoapps.contentstore.views.assets import update_course_run_asset  # pylint: disable=import-outside-toplevel
         except ImportError:
             from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset  # pylint: disable=import-outside-toplevel
+        uploaded_content = []
         for _, file in request.params.items():
             try:
                 content = update_course_run_asset(self.course_id, file.file)
+                uploaded_content.append(self.get_asset_json_from_content(content))
                 self.update_contents(content)
             except Exception as e:  # pylint: disable=broad-except
                 log.exception(e)
                 return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
         return Response(
             status=HTTPStatus.OK,
-            json_body=self.contents,
+            json_body=uploaded_content,
         )
 
     def update_contents(self, content):
@@ -254,7 +256,10 @@ class ImagesGalleryXBlock(XBlock):
             from cms.djangoapps.contentstore.asset_storage_handler import delete_asset  # pylint: disable=import-outside-toplevel
         except ImportError:
             from cms.djangoapps.contentstore.views.assets import delete_asset  # pylint: disable=import-outside-toplevel
-        delete_asset(self.course_id, asset_key)
+        try:
+            delete_asset(self.course_id, asset_key)
+        except Exception as e:  # pylint: disable=broad-except
+            log.exception(e)
 
         for content in self.contents:
             if content["asset_key"] == str(asset_key):
