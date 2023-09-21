@@ -236,11 +236,14 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.json_handler
     def get_files(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handler for getting images from the course assets."""
-        import pudb; pu.db
-        return self.get_paginated_contents(
+        paginated_contents = self.get_paginated_contents(
             current_page=int(data.get("current_page", 0)),
             page_size=int(data.get("page_size", 10)),
         )
+        return {
+            "files": paginated_contents,
+            "total_count": len(paginated_contents),
+        }
 
     @XBlock.json_handler
     def remove_files(self, data, suffix=''):  # pylint: disable=unused-argument
