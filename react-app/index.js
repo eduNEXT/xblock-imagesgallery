@@ -22,18 +22,16 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Production mode rendering
-function ImagesGalleryXBlock(runtime, element, context) {
-  const typeRuntime = element.getAttribute('data-runtime-class');
-  const xblockId = element.getAttribute('data-usage-id');
+function ImagesGalleryXBlock(runtime, _, context) {
+  const xblockId = context.xblock_id;
+  const elementSelector = document.querySelector(`[data-usage-id="${xblockId}"]`);
+  const typeRuntime = elementSelector.getAttribute('data-runtime-class');
   globalObject.runtime = runtime;
-  globalObject.element = element;
+  globalObject.element = elementSelector;
   globalObject.context = context;
-  globalObject.isStudioView = element && typeRuntime === 'PreviewRuntime';
+  globalObject.isStudioView = elementSelector && typeRuntime !== 'LmsRuntime';
   globalObject.xblockId = xblockId;
   const rootElement = document.getElementById('images-gallery-app-root');
-  const currentDateTime = new Date().getTime();
-  const dynamicRootId = `images-gallery-app-root-${currentDateTime}`;
-  rootElement.setAttribute('id', dynamicRootId);
   const root = ReactDOM.createRoot(rootElement);
 
   if (!window.gettext) {
