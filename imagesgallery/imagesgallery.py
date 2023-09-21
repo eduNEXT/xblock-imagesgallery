@@ -96,14 +96,9 @@ class ImagesGalleryXBlock(XBlock):
         if context:
             pass  # TO-DO: do something based on the context.
 
-        xblock_id = self.block_id
-        # XBlock IDs typically follow this format: block-v1:{course_name}+type@{xblockname}+block@{id_xblock}
-        # This code extracts the last part of the string, which is {id_xblock}
-        xblock_id_splitted = self.block_id_parsed
-
         # Main function name for the XBlock
-        js_xblock_function = f"XBlockMain{xblock_id_splitted}"
-        react_app_root_id = f"images-gallery-app-root-{xblock_id_splitted}"
+        js_xblock_function = f"XBlockMain{self.block_id_parsed}"
+        react_app_root_id = f"images-gallery-app-root-{self.block_id_parsed}"
 
         # Read the JavaScript content from the bundle file
         js_content = self.read_file("static/html/bundle.js")
@@ -141,7 +136,7 @@ class ImagesGalleryXBlock(XBlock):
            frag.add_javascript_url(self.runtime.local_resource_url(self, statici18n_js_url))
 
         js_context  = {
-           "xblock_id": xblock_id,
+           "xblock_id": self.block_id,
         }
 
         frag.add_javascript(js_content_parsed)
