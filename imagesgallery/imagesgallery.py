@@ -143,6 +143,66 @@ class ImagesGalleryXBlock(XBlock):
         frag.initialize_js(js_main_function, json_args=js_context)
         return frag
 
+    def studio_view(self, context=None) -> Fragment:
+        """
+        The studio view of the ImagesGalleryXBlock, shown to instructors.
+
+        Args:
+            context (dict, optional): Context for the template. Defaults to None.
+
+        Returns:
+            Fragment: The fragment to render
+        """
+        if context:
+            pass  # TO-DO: do something based on the context.
+
+        # Main function name for the XBlock
+        js_xblock_function = f"XBlockMain{self.block_id_parsed}"
+        react_app_root_id = f"images-gallery-app-root-{self.block_id_parsed}-edit"
+
+        # Read the JavaScript content from the bundle file
+        js_content = self.read_file("static/html/bundle.js")
+
+        if js_content:
+            # Replace the default React app root with the new one and update the main function name
+            new_content = js_content.replace('images-gallery-app-root', react_app_root_id)
+            new_content = new_content.replace('ImagesGalleryXBlock', js_xblock_function)
+            js_content = new_content
+
+        # Create the HTML fragment with the React app and JavaScript
+        html = f"<div id='{react_app_root_id}'></div><script defer='defer'>{js_content}</script>"
+        frag = Fragment(html)
+        frag.add_css(self.resource_string("static/css/imagesgallery.css"))
+
+        # Define the main function for the XBlock
+        js_main_function = f"Main_{js_xblock_function}"
+
+        # Define the parsed JavaScript content
+        js_content_parsed = (
+           f"function {js_main_function}(runtime, element, context) {{"
+           f"{js_xblock_function}(runtime, element, context);"
+           "}")
+
+        # Handle the case where there's an error getting the bundle file
+        if not js_content:
+            js_content_parsed = (
+                f"function {js_main_function}(runtime, element, context) {{"
+                "console.error('Something went wrong with XBlock rendering');"
+                "}")
+
+        # Add i18n js
+        statici18n_js_url = self._get_statici18n_js_url()
+        if statici18n_js_url:
+           frag.add_javascript_url(self.runtime.local_resource_url(self, statici18n_js_url))
+
+        js_context  = {
+           "xblock_id": self.block_id,
+        }
+
+        frag.add_javascript(js_content_parsed)
+        frag.initialize_js(js_main_function, json_args=js_context)
+        return frag
+
     @XBlock.handler
     def file_upload(self, request, suffix=''):  # pylint: disable=unused-argument
         """Handler for file upload to the course assets."""
