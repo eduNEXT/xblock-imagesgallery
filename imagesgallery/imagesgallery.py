@@ -60,6 +60,13 @@ class ImagesGalleryXBlock(XBlock):
         """
         return str(self.scope_ids.usage_id)
 
+    @property
+    def block_id_parsed(self):
+        """
+        Return the usage_id of the block.
+        """
+        return str(self.scope_ids.usage_id.block_id)
+
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
         data = pkg_resources.resource_string(__name__, path)
@@ -76,7 +83,7 @@ class ImagesGalleryXBlock(XBlock):
                 file_content = file_data.read()
 
         except FileNotFoundError as e:
-            print(f"FileNotFoundError: {e}")
+            log.exception(e)
 
         return file_content
 
@@ -90,10 +97,9 @@ class ImagesGalleryXBlock(XBlock):
             pass  # TO-DO: do something based on the context.
 
         xblock_id = self.block_id
-        # Split the string by the @ symbol and get the last part
         # XBlock IDs typically follow this format: block-v1:{course_name}+type@{xblockname}+block@{id_xblock}
         # This code extracts the last part of the string, which is {id_xblock}
-        xblock_id_splitted = xblock_id.split('@')[-1]
+        xblock_id_splitted = self.block_id_parsed
 
         # Main function name for the XBlock
         js_xblock_function = f"XBlockMain{xblock_id_splitted}"
