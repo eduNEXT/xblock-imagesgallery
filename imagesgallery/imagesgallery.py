@@ -10,8 +10,10 @@ from django.conf import settings
 from django.utils import translation
 from webob.response import Response
 from xblock.core import XBlock
+from xblock.fields import Scope, List
 from xblock.fragment import Fragment
 from xblockutils.resources import ResourceLoader
+
 
 try:
     from opaque_keys.edx.keys import AssetKey
@@ -52,6 +54,12 @@ IMAGE_CONTENT_TYPE_FOR_MONGO = {
 
 class ImagesGalleryXBlock(XBlock):
     """XBlock for displaying a gallery of images."""
+
+    contents = List(
+        display_name="Static contents uploaded by the instructor.",
+        default=[],
+        scope=Scope.settings,
+    )
 
     @property
     def block_id(self):
@@ -206,23 +214,29 @@ class ImagesGalleryXBlock(XBlock):
             from cms.djangoapps.contentstore.views.assets import update_course_run_asset  # pylint: disable=import-outside-toplevel
         except ImportError:
             from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset  # pylint: disable=import-outside-toplevel
-        contents = []
         for _, file in request.params.items():
             try:
                 content = update_course_run_asset(self.course_id, file.file)
-                contents.append(content)
+                self.update_contents(content)
             except Exception as e:  # pylint: disable=broad-except
                 log.exception(e)
                 return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
-        serialized_contents = [self.get_asset_json_from_content(content) for content in contents]
         return Response(
             status=HTTPStatus.OK,
-            json_body=serialized_contents,
+            json_body=self.contents,
         )
+
+    def update_contents(self, content):
+        """
+        Serializes the content object to a dictionary and appends it to the
+        contents list.
+        """
+        self.contents.append(self.get_asset_json_from_content(content))
 
     @XBlock.json_handler
     def get_files(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handler for getting images from the course assets."""
+        import pudb; pu.db
         return self.get_paginated_contents(
             current_page=int(data.get("current_page", 0)),
             page_size=int(data.get("page_size", 10)),
@@ -238,6 +252,11 @@ class ImagesGalleryXBlock(XBlock):
         except ImportError:
             from cms.djangoapps.contentstore.views.assets import delete_asset  # pylint: disable=import-outside-toplevel
         delete_asset(self.course_id, asset_key)
+
+        for content in self.contents:
+            if content["asset_key"] == str(asset_key):
+                self.contents.remove(content)
+                break
 
     def get_asset_json_from_content(self, content):
         """Serialize the content object to a JSON serializable object. """
@@ -280,21 +299,27 @@ class ImagesGalleryXBlock(XBlock):
         return str(thumbnail_asset_key)
 
     def get_paginated_contents(self, current_page=0, page_size=10):
-        """Return the assets paginated list."""
-        query_options = {
-            "current_page": current_page,
-            "page_size": page_size,
-            "sort": {},
-            "filter_params": IMAGE_CONTENT_TYPE_FOR_MONGO,
-        }
-        assets, total_count = self._get_assets_for_page(self.course_id, query_options)
-        serialized_assets = []
-        for asset in assets:
-            serialized_assets.append(self.get_asset_json_from_dict(asset))
-        return {
-            "files": serialized_assets,
-            "total_count": total_count,
-        }
+        """
+        Returns the contents list.
+        """
+        return self.contents[current_page * page_size: (current_page + 1) * page_size]
+
+    # def get_paginated_contents(self, current_page=0, page_size=10):
+    #     """Return the assets paginated list."""
+    #     query_options = {
+    #         "current_page": current_page,
+    #         "page_size": page_size,
+    #         "sort": {},
+    #         "filter_params": IMAGE_CONTENT_TYPE_FOR_MONGO,
+    #     }
+    #     assets, total_count = self._get_assets_for_page(self.course_id, query_options)
+    #     serialized_assets = []
+    #     for asset in assets:
+    #         serialized_assets.append(self.get_asset_json_from_dict(asset))
+    #     return {
+    #         "files": serialized_assets,
+    #         "total_count": total_count,
+    #     }
 
     def _get_assets_for_page(self, course_key, options):
         """Return course content for given course and options."""
