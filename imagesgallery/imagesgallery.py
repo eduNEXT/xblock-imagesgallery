@@ -281,21 +281,6 @@ class ImagesGalleryXBlock(XBlock):
             "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
         }
 
-    def get_asset_json_from_dict(self, asset):
-        """Transform the asset dictionary into a JSON serializable object."""
-        asset_url = StaticContent.serialize_asset_key_with_slash(asset["asset_key"])
-        thumbnail_url = self._get_thumbnail_asset_key(asset)
-        return {
-            "id": asset["_id"],
-            "asset_key": str(asset["asset_key"]),
-            "display_name": asset["displayname"],
-            "url": str(asset_url),
-            "content_type": asset["contentType"],
-            "file_size": asset["length"],
-            "external_url": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), asset_url),
-            "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
-        }
-
     def _get_thumbnail_asset_key(self, asset):
         """Return the thumbnail asset key."""
         thumbnail_location = asset.get('thumbnail_location', None)
@@ -311,23 +296,6 @@ class ImagesGalleryXBlock(XBlock):
         Returns the contents list.
         """
         return self.contents[current_page * page_size: (current_page + 1) * page_size]
-
-    # def get_paginated_contents(self, current_page=0, page_size=10):
-    #     """Return the assets paginated list."""
-    #     query_options = {
-    #         "current_page": current_page,
-    #         "page_size": page_size,
-    #         "sort": {},
-    #         "filter_params": IMAGE_CONTENT_TYPE_FOR_MONGO,
-    #     }
-    #     assets, total_count = self._get_assets_for_page(self.course_id, query_options)
-    #     serialized_assets = []
-    #     for asset in assets:
-    #         serialized_assets.append(self.get_asset_json_from_dict(asset))
-    #     return {
-    #         "files": serialized_assets,
-    #         "total_count": total_count,
-    #     }
 
     def _get_assets_for_page(self, course_key, options):
         """Return course content for given course and options."""
