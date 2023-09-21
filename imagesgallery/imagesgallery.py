@@ -63,7 +63,7 @@ class ImagesGalleryXBlock(XBlock):
     @property
     def block_id_parsed(self):
         """
-        Return the usage_id of the block.
+        Return the usage_id of the block parsed which means all after '@' symbol.
         """
         return str(self.scope_ids.usage_id.block_id)
 
