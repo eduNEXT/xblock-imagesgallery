@@ -102,12 +102,10 @@ class ImagesGalleryXBlock(XBlock):
 
         # Read the JavaScript content from the bundle file
         js_content = self.read_file("static/html/bundle.js")
-
         if js_content:
             # Replace the default React app root with the new one and update the main function name
             new_content = js_content.replace('images-gallery-app-root', react_app_root_id)
-            new_content = new_content.replace('ImagesGalleryXBlock', js_xblock_function)
-            js_content = new_content
+            js_content = new_content.replace('ImagesGalleryXBlock', js_xblock_function)
 
         # Create the HTML fragment with the React app and JavaScript
         html = f"<div id='{react_app_root_id}'></div><script defer='defer'>{js_content}</script>"
@@ -162,12 +160,10 @@ class ImagesGalleryXBlock(XBlock):
 
         # Read the JavaScript content from the bundle file
         js_content = self.read_file("static/html/bundle.js")
-
         if js_content:
             # Replace the default React app root with the new one and update the main function name
             new_content = js_content.replace('images-gallery-app-root', react_app_root_id)
-            new_content = new_content.replace('ImagesGalleryXBlock', js_xblock_function)
-            js_content = new_content
+            js_content = new_content.replace('ImagesGalleryXBlock', js_xblock_function)
 
         # Create the HTML fragment with the React app and JavaScript
         html = f"<div id='{react_app_root_id}'></div><script defer='defer'>{js_content}</script>"
