@@ -33,6 +33,10 @@ try:
     from cms.djangoapps.contentstore.views.assets import update_course_run_asset, delete_asset
 except ImportError:
     from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset, delete_asset
+except ModuleNotFoundError:
+    # Avoid errors while running tests
+    update_course_run_asset = None
+    delete_asset = None
 
 log = logging.getLogger(__name__)
 
