@@ -252,13 +252,14 @@ class ImagesGalleryXBlock(XBlock):
         """Handler for removing images from the course assets."""
         asset_key = AssetKey.from_string(data.get("asset_key"))
         # Temporary fix for supporting both contentstore assets management versions (master / Palm)
+        from cms.djangoapps.contentstore.exceptions import AssetNotFoundException  # pylint: disable=import-outside-toplevel
         try:
             from cms.djangoapps.contentstore.asset_storage_handler import delete_asset  # pylint: disable=import-outside-toplevel
         except ImportError:
             from cms.djangoapps.contentstore.views.assets import delete_asset  # pylint: disable=import-outside-toplevel
         try:
             delete_asset(self.course_id, asset_key)
-        except Exception as e:  # pylint: disable=broad-except
+        except AssetNotFoundException as e:  # pylint: disable=broad-except
             log.exception(e)
 
         for content in self.contents:
