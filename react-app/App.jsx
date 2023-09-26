@@ -1,21 +1,29 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import DropZoneFile from '@components/DropZoneFile';
 import ListImages from '@components/ListImages';
 import Gallery from '@components/Gallery';
+import XBlockActionButtons from '@components/XBlockActionButtons';
 import { GalleryContext } from '@contexts/galleryContext';
 import globalObject from '@constants/globalObject';
-import { getItemLocalStorage } from '@utils/localStorageUtils';
+import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorageUtils';
 
 import './App.css';
 
 const App = () => {
   const [filesToUploadList, setFilesToUploadList] = useState([]);
   const [galleryErrorMessage, setGalleryErrorMessage] = useState(null);
-  const { xblockId, isStudioView } = globalObject;
+  /*const state = useSelector((state) => state);
+  const { filesToUpload = [] } = useSelector((state) => state.files);
+  */
+  const { xblockId, isStudioView, isEditView } = globalObject;
 
   useEffect(() => {
     const filesUploaded = getItemLocalStorage(xblockId) || [];
     setFilesToUploadList(filesUploaded);
+    if (isEditView) {
+      localStorage.removeItem(`${xblockId}_edit`);
+    }
   }, []);
 
   return (

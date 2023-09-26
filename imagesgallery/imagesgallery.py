@@ -144,6 +144,7 @@ class ImagesGalleryXBlock(XBlock):
 
         js_context  = {
            "xblock_id": self.block_id,
+            "is_edit_view": False
         }
 
         frag.add_javascript(js_content_parsed)
@@ -202,6 +203,7 @@ class ImagesGalleryXBlock(XBlock):
 
         js_context  = {
            "xblock_id": self.block_id,
+           "is_edit_view": True,
         }
 
         frag.add_javascript(js_content_parsed)

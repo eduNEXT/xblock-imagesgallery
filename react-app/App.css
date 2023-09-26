@@ -28,3 +28,7 @@
 .image-gallery-icon:hover {
   box-shadow: none !important;
 }
+
+.modal-content {
+  min-height: 700px !important;
+}

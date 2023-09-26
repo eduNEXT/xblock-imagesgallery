@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
+import { Provider, useSelector } from 'react-redux';
 import globalObject from '@constants/globalObject';
+import store from '@redux/store';
 
 import App from './App';
 
@@ -31,6 +33,7 @@ function ImagesGalleryXBlock(runtime, _, context) {
   globalObject.context = context;
   globalObject.isStudioView = elementSelector && typeRuntime !== 'LmsRuntime';
   globalObject.xblockId = xblockId;
+  globalObject.isEditView = context.is_edit_view;
   const rootElement = document.getElementById('images-gallery-app-root');
   const root = ReactDOM.createRoot(rootElement);
 
@@ -40,7 +43,9 @@ function ImagesGalleryXBlock(runtime, _, context) {
 
   root.render(
     <React.StrictMode>
-      <App />
+      <Provider store={store}>
+        <App />
+      </Provider>
     </React.StrictMode>
   );
 }

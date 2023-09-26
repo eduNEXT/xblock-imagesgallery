@@ -54,6 +54,7 @@ module.exports = {
       '@contexts': path.resolve(__dirname, 'react-app/contexts'),
       '@constants': path.resolve(__dirname, 'react-app/constants'),
       "@config": path.resolve(__dirname, 'react-app/config'),
+      "@redux": path.resolve(__dirname, 'react-app/redux'),
     }
   },
   devServer: {
