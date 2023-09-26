@@ -1,6 +1,7 @@
-import React, { useCallback, useContext, useState, memo } from 'react';
+import React, { useCallback, useContext, useState, memo, useEffect, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { StatusCodes } from 'http-status-codes';
+import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileImage } from '@fortawesome/free-regular-svg-icons';
 import { GalleryContext } from '@contexts/galleryContext';
@@ -8,6 +9,8 @@ import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorageUti
 import globalObject from '@constants/globalObject';
 import apiConfig from '@config/api';
 import ErrorMessage from '@components/ErrorMessage';
+import XBlockActionButtons from '@components/XBlockActionButtons';
+import { setFiles } from '@redux/actions/file';
 import './styles.css';
 
 const fileTypesAllowed = {
@@ -22,7 +25,11 @@ const fileTypesAllowed = {
 const DropZoneFile = () => {
   const { setFilesToUploadList, galleryErrorMessage } = useContext(GalleryContext);
   const [dropZoneErrorMessage, setDropZoneErrorMessage] = useState(null);
-
+  const { filesToUpload } = useSelector((state) => state.files);
+  const dispatch = useDispatch();
+  const [filesToUploadStoraged, setFilesToUploadStoraged] = useState();
+  const [isCallbackExecuted, setIsCallbackExecuted] = useState(false);
+  const { xblockId, isEditView } = globalObject;
   /**
    * Uploads files using the provided form data and fetches the uploaded files' information.
    *
@@ -73,20 +80,86 @@ const DropZoneFile = () => {
   }
 
   // Callback executed when files are dropped to the drop zone
-  const onDrop = useCallback((allowedFiles) => {
-    // Create a FormData object to send the file to the server
-    const formData = new FormData();
-    allowedFiles.forEach((file) => {
-      formData.append('files', file);
-    });
+  const onDrop = useCallback(async (allowedFiles) => {
+    const filesImagesToSave = [];
+
+    async function readAndProcessFile(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+          const { name, size } = file;
+          const id = new Date().getTime();
+          const url = event.target.result;
+          const image = {
+            id: `${id}_${name}`,
+            assetKey: `${id}_asset`,
+            name,
+            size,
+            url,
+            file
+          };
+
+          filesImagesToSave.push(image);
+          resolve();
+        };
+
+        // Read the file as a data URL (this will trigger the onload callback)
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Read and process all files asynchronously
+    await Promise.all(allowedFiles.map((file) => readAndProcessFile(file)));
+    const storageKey = `${xblockId}_edit`;
+    const filesSaved = getItemLocalStorage(storageKey) || [];
+    const newData = [...filesSaved, ...filesImagesToSave];
+    setItemLocalStorage(storageKey, newData);
+    dispatch(setFiles(newData));
 
     const { element: globalElement } = globalObject;
     if (globalElement) {
-      uploadAndFetchFiles(formData);
+      // uploadAndFetchFiles(formData);
     }
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: fileTypesAllowed });
+
+  // Handler to save images in backend when save button is clicked
+  const handleSaveButton = async (data) => {
+    try {
+      const { element: globalElement } = globalObject;
+      // 'change the name of the handler here'
+      const fileDeleteHandler = globalObject.runtime.handlerUrl(globalElement, 'handler_name');
+      const resultRequest = await apiConfig.post(fileDeleteHandler, data);
+
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const handleSaveImages = (data) => {
+    const formData = new FormData();
+    data.forEach(({ file }) => {
+      formData.append('files', file);
+    });
+    console.log('data', data);
+    console.log('formData', formData);
+    handleSaveButton(formData);
+  };
+
+
+
+  const xblockBottomButtons = useMemo(() => {
+    return [
+      {
+        id: '527bd5b5d689e2c32ae974c6229ff785',
+        xblockIdItem: xblockId,
+        title: 'Save',
+        callback: () => {}
+      }
+    ];
+  }, [filesToUpload]);
 
   return (
     <div className="xblock-images-gallery__file-uploader">
@@ -98,6 +171,7 @@ const DropZoneFile = () => {
       {(dropZoneErrorMessage || galleryErrorMessage) && (
         <ErrorMessage message={dropZoneErrorMessage || galleryErrorMessage} />
       )}
+      {isEditView && <XBlockActionButtons buttons={xblockBottomButtons} callbackFunction={handleSaveImages} />}
     </div>
   );
 };

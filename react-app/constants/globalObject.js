@@ -5,7 +5,8 @@ const globalObject = {
   element: null,
   context: null,
   isStudioView: false,
-  xblockId: null
+  xblockId: null,
+  isEditView: false,
 };
 
 export default globalObject;

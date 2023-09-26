@@ -2,17 +2,21 @@ import React, { useContext, useState, memo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
 import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorageUtils';
 import { GalleryContext } from '@contexts/galleryContext';
 import globalObject from '@constants/globalObject';
 import apiConfig from '@config/api';
+import { setFiles } from '@redux/actions/file';
 
 import './styles.css';
 
-function ImageItem(props) {
+const ImageItem = (props) => {
+  const dispatch = useDispatch();
   const { id: idImageItem, url, name, size, assetKey } = props;
   const [isHovered, setIsHovered] = useState(false);
-  const {setFilesToUploadList, setGalleryErrorMessage } = useContext(GalleryContext);
+  const { setFilesToUploadList, setGalleryErrorMessage } = useContext(GalleryContext);
+  const { isEditView } = globalObject;
 
   // Event triggered when the mouse is over current the image.
   const handleMouseEnter = () => {
@@ -36,22 +40,28 @@ function ImageItem(props) {
       setItemLocalStorage(xblockId, filesToUploadListUpdated);
       setFilesToUploadList(filesToUploadListUpdated);
       setGalleryErrorMessage(null);
-
     } catch (error) {
       const deleteImageErrorMessage = gettext('it failed to delete file');
       setGalleryErrorMessage(deleteImageErrorMessage);
     }
   };
 
+  const handleDeleteFileEditView = () => {
+    const { xblockId } = globalObject;
+    const filesToUploadListStorage = getItemLocalStorage(`${xblockId}_edit`) || [];
+    const filesToUploadListUpdated = filesToUploadListStorage.filter(({ id }) => id !== idImageItem);
+    setItemLocalStorage(`${xblockId}_edit`, filesToUploadListUpdated);
+    dispatch(setFiles(filesToUploadListUpdated));
+    //setFilesToUploadList(filesToUploadListUpdated);
+  }
+
   return (
     <div className="card" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-      <div className={`title-top ${isHovered ? 'visible' : ''}`}>
-        {name}
-      </div>
+      <div className={`title-top ${isHovered ? 'visible' : ''}`}>{name}</div>
       <img className={`card-image ${isHovered ? 'faded' : ''}`} src={url} alt={`${name}`} />
       <div className={`bottom-content ${isHovered ? 'visible' : ''}`}>
         <div className="title-bottom">{size}</div>
-        <div className="delete-icon" onClick={handleDeleteFile}>
+        <div className="delete-icon" onClick={isEditView ? handleDeleteFileEditView : handleDeleteFile}>
           <FontAwesomeIcon icon={faTrash} />
         </div>
       </div>
