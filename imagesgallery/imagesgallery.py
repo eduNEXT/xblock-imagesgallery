@@ -16,16 +16,23 @@ from xblockutils.resources import ResourceLoader
 
 
 try:
+    from cms.djangoapps.contentstore.exceptions import AssetNotFoundException
     from opaque_keys.edx.keys import AssetKey
     from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
     from xmodule.contentstore.content import StaticContent
     from xmodule.contentstore.django import contentstore
 except ImportError:
+    AssetNotFoundException = None
     configuration_helpers = None
     StaticContent = None
     contentstore = None
     AssetKey = None
 
+# Temporary fix for supporting both contentstore assets management versions (master / Palm)
+try:
+    from cms.djangoapps.contentstore.views.assets import update_course_run_asset, delete_asset
+except ImportError:
+    from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset, delete_asset
 
 log = logging.getLogger(__name__)
 
@@ -210,10 +217,6 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.handler
     def file_upload(self, request, suffix=''):  # pylint: disable=unused-argument
         """Handler for file upload to the course assets."""
-        try:
-            from cms.djangoapps.contentstore.views.assets import update_course_run_asset  # pylint: disable=import-outside-toplevel
-        except ImportError:
-            from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset  # pylint: disable=import-outside-toplevel
         uploaded_content = []
         for _, file in request.params.items():
             try:
@@ -251,12 +254,6 @@ class ImagesGalleryXBlock(XBlock):
     def remove_files(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handler for removing images from the course assets."""
         asset_key = AssetKey.from_string(data.get("asset_key"))
-        # Temporary fix for supporting both contentstore assets management versions (master / Palm)
-        from cms.djangoapps.contentstore.exceptions import AssetNotFoundException  # pylint: disable=import-outside-toplevel
-        try:
-            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset  # pylint: disable=import-outside-toplevel
-        except ImportError:
-            from cms.djangoapps.contentstore.views.assets import delete_asset  # pylint: disable=import-outside-toplevel
         try:
             delete_asset(self.course_id, asset_key)
         except AssetNotFoundException as e:  # pylint: disable=broad-except
