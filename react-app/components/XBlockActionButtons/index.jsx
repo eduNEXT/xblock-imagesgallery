@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import globalObject from '@constants/globalObject';
 
 const XBlockActionButtons = (props) => {
-  const { buttons, callbackFunction } = props;
+  const { buttons, callbackFunction, imagesList, imagesToDelete } = props;
   const { isEditView, xblockId } = globalObject;
   const buttonRefs = useRef({});
   const { filesToUpload } = useSelector((state) => state.files);
@@ -40,13 +40,14 @@ const XBlockActionButtons = (props) => {
         });
       };
     }
-  }, [buttons]);
+  }, [buttons, imagesList, imagesToDelete]);
 
 
   // Define the click event handler for the buttons
   const handleButtonClick = (event) => {
      event.preventDefault();
-     callbackFunction(filesToUpload);
+     callbackFunction(imagesList, imagesToDelete);
+     console.log('imagesList', imagesList);
   };
 
   return null;
@@ -54,20 +55,22 @@ const XBlockActionButtons = (props) => {
 
 XBlockActionButtons.propTypes = {
   callbackFunction: PropTypes.func,
+  imagesToDelete: PropTypes.arrayOf(PropTypes.string),
+  imagesList: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      url: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      size: PropTypes.string.isRequired,
+      assetKey: PropTypes.string.isRequired
+    })
+  ),
   buttons: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       xblockIdItem: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
       callback: PropTypes.func.isRequired,
-      imagesList: PropTypes.arrayOf(
-        PropTypes.shape({
-          id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-          url: PropTypes.string.isRequired,
-          name: PropTypes.string.isRequired,
-          size: PropTypes.string.isRequired,
-        })
-      ),
     })
   ).isRequired,
 };

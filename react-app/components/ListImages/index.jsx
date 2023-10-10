@@ -8,7 +8,7 @@ import './styles.css';
 
 const ListImages =  (props) => {
   const { isEditView } = globalObject;
-  const { list } = props;
+  const { list, onDeleteImageList } = props;
   const { filesToUpload = [] } = useSelector(state => state.files);
   const listImages = isEditView ? filesToUpload : list;
 
@@ -18,8 +18,8 @@ const ListImages =  (props) => {
         <h3 className="xblock-images-gallery__list-title">{gettext('To upload')}</h3>
       </div>
       <div className="xblock-images-gallery__grid">
-        {listImages.map((imageData) => (
-          <ImageItem key={imageData.id} {...imageData} />
+        {list.map((imageData) => (
+          <ImageItem key={imageData.id} {...imageData} onDeleteImage={onDeleteImageList} />
         ))}
       </div>
     </>
@@ -31,10 +31,14 @@ ListImages.propTypes = {
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       url: PropTypes.string.isRequired,
+      assetKey: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
-      size: PropTypes.string.isRequired
+      size: PropTypes.string.isRequired,
+      isSaved: PropTypes.bool,
+      onDeleteImage: PropTypes.func
     })
-  ).isRequired
+  ).isRequired,
+  onDeleteImageList: PropTypes.func
 };
 
 export default memo(ListImages);

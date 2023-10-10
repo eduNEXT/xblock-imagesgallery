@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import DropZoneFile from '@components/DropZoneFile';
 import ListImages from '@components/ListImages';
 import Gallery from '@components/Gallery';
+import EditVIew from '@components/EditVIew';
 import XBlockActionButtons from '@components/XBlockActionButtons';
 import { GalleryContext } from '@contexts/galleryContext';
 import globalObject from '@constants/globalObject';
@@ -19,11 +20,11 @@ const App = () => {
   const { xblockId, isStudioView, isEditView } = globalObject;
 
   useEffect(() => {
-    const filesUploaded = getItemLocalStorage(xblockId) || [];
+    /*const filesUploaded = getItemLocalStorage(xblockId) || [];
     setFilesToUploadList(filesUploaded);
     if (isEditView) {
       localStorage.removeItem(`${xblockId}_edit`);
-    }
+    } */
   }, []);
 
   return (
@@ -31,11 +32,8 @@ const App = () => {
       value={{ filesToUploadList, setFilesToUploadList, galleryErrorMessage, setGalleryErrorMessage }}>
       <div className="xblock-images-gallery__container">
         <h1 className="xblock-images-gallery__title">Images Gallery XBlock</h1>
-        {isStudioView ? (
-          <>
-            <DropZoneFile />
-            <ListImages list={filesToUploadList} />
-          </>
+        {isStudioView && isEditView ? (
+          <EditVIew />
         ) : (
           <Gallery />
         )}

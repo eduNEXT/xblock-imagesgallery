@@ -62,7 +62,7 @@ function Gallery() {
       setImagesList((prevImages) => [...prevImages, ...formatImages]);
       setFetchedPages({ ...fetchedPages, [page]: true });
     } catch (error) {
-      const errorMessage = gettext('An unexpected error has occured');
+      const errorMessage = gettext('An unexpected error has occurred');
       setGalleryErrorMessage(errorMessage);
     } finally {
       setIsLoading(false);

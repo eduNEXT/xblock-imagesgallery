@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileImage } from '@fortawesome/free-regular-svg-icons';
+import PropTypes from 'prop-types';
 import { GalleryContext } from '@contexts/galleryContext';
 import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorageUtils';
 import globalObject from '@constants/globalObject';
@@ -22,7 +23,7 @@ const fileTypesAllowed = {
   'image/gif': []
 };
 
-const DropZoneFile = () => {
+const DropZoneFile = ({ onDroppedImages, onSaveImages }) => {
   const { setFilesToUploadList, galleryErrorMessage } = useContext(GalleryContext);
   const [dropZoneErrorMessage, setDropZoneErrorMessage] = useState(null);
   const { filesToUpload } = useSelector((state) => state.files);
@@ -111,11 +112,12 @@ const DropZoneFile = () => {
 
     // Read and process all files asynchronously
     await Promise.all(allowedFiles.map((file) => readAndProcessFile(file)));
-    const storageKey = `${xblockId}_edit`;
-    const filesSaved = getItemLocalStorage(storageKey) || [];
-    const newData = [...filesSaved, ...filesImagesToSave];
-    setItemLocalStorage(storageKey, newData);
-    dispatch(setFiles(newData));
+    onDroppedImages(filesImagesToSave);
+    //const storageKey = `${xblockId}_edit`;
+    // const filesSaved = getItemLocalStorage(storageKey) || [];
+    //const newData = [...filesSaved, ...filesImagesToSave];
+    //setItemLocalStorage(storageKey, newData);
+    // dispatch(setFiles(newData));
 
     const { element: globalElement } = globalObject;
     if (globalElement) {
@@ -132,7 +134,6 @@ const DropZoneFile = () => {
       // 'change the name of the handler here'
       const fileDeleteHandler = globalObject.runtime.handlerUrl(globalElement, 'handler_name');
       const resultRequest = await apiConfig.post(fileDeleteHandler, data);
-
     } catch (error) {
       console.log(error.message);
     }
@@ -143,12 +144,11 @@ const DropZoneFile = () => {
     data.forEach(({ file }) => {
       formData.append('files', file);
     });
-    console.log('data', data);
-    console.log('formData', formData);
-    handleSaveButton(formData);
+    onSaveImages(formData);
+    // console.log('data', data);
+    //console.log('formData', formData);
+    // handleSaveButton(formData);
   };
-
-
 
   const xblockBottomButtons = useMemo(() => {
     return [
@@ -171,9 +171,14 @@ const DropZoneFile = () => {
       {(dropZoneErrorMessage || galleryErrorMessage) && (
         <ErrorMessage message={dropZoneErrorMessage || galleryErrorMessage} />
       )}
-      {isEditView && <XBlockActionButtons buttons={xblockBottomButtons} callbackFunction={handleSaveImages} />}
+      {/*isEditView && <XBlockActionButtons buttons={xblockBottomButtons} callbackFunction={handleSaveImages} /> */}
     </div>
   );
+};
+
+DropZoneFile.propTypes = {
+  onDroppedImages: PropTypes.func.isRequired,
+  onSaveImages: PropTypes.func.isRequired
 };
 
 export default memo(DropZoneFile);

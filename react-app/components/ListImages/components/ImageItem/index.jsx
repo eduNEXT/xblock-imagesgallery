@@ -13,7 +13,7 @@ import './styles.css';
 
 const ImageItem = (props) => {
   const dispatch = useDispatch();
-  const { id: idImageItem, url, name, size, assetKey } = props;
+  const { id: idImageItem, url, name, size, assetKey, isSaved, onDeleteImage } = props;
   const [isHovered, setIsHovered] = useState(false);
   const { setFilesToUploadList, setGalleryErrorMessage } = useContext(GalleryContext);
   const { isEditView } = globalObject;
@@ -47,11 +47,14 @@ const ImageItem = (props) => {
   };
 
   const handleDeleteFileEditView = () => {
-    const { xblockId } = globalObject;
+    if(onDeleteImage){
+       onDeleteImage(assetKey, isSaved);
+    }
+    /*const { xblockId } = globalObject;
     const filesToUploadListStorage = getItemLocalStorage(`${xblockId}_edit`) || [];
     const filesToUploadListUpdated = filesToUploadListStorage.filter(({ id }) => id !== idImageItem);
-    setItemLocalStorage(`${xblockId}_edit`, filesToUploadListUpdated);
-    dispatch(setFiles(filesToUploadListUpdated));
+    setItemLocalStorage(`${xblockId}_edit`, filesToUploadListUpdated); */
+    // dispatch(setFiles(filesToUploadListUpdated));
     //setFilesToUploadList(filesToUploadListUpdated);
   }
 
@@ -61,7 +64,7 @@ const ImageItem = (props) => {
       <img className={`card-image ${isHovered ? 'faded' : ''}`} src={url} alt={`${name}`} />
       <div className={`bottom-content ${isHovered ? 'visible' : ''}`}>
         <div className="title-bottom">{size}</div>
-        <div className="delete-icon" onClick={isEditView ? handleDeleteFileEditView : handleDeleteFile}>
+        <div className="delete-icon" onClick={handleDeleteFileEditView}>
           <FontAwesomeIcon icon={faTrash} />
         </div>
       </div>
@@ -69,12 +72,19 @@ const ImageItem = (props) => {
   );
 }
 
+ImageItem.defaultProps = {
+  isSaved: false,
+  onDeleteImage: undefined
+}
+
 ImageItem.propTypes = {
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   assetKey: PropTypes.string.isRequired,
   url: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  size: PropTypes.string.isRequired
+  size: PropTypes.string.isRequired,
+  isSaved: PropTypes.bool,
+  onDeleteImage: PropTypes.func,
 };
 
 export default memo(ImageItem);
