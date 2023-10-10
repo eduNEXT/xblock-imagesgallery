@@ -33,7 +33,7 @@ const ImageItem = (props) => {
     try {
       const { element: globalElement, xblockId } = globalObject;
       const fileDeleteHandler = globalObject.runtime.handlerUrl(globalElement, 'remove_files');
-      const data = { asset_key: assetKey };
+      const data = {assets: [assetKey]};
       await apiConfig.post(fileDeleteHandler, data);
       const filesToUploadListStorage = getItemLocalStorage(xblockId) || [];
       const filesToUploadListUpdated = filesToUploadListStorage.filter(({ id }) => id !== idImageItem);
