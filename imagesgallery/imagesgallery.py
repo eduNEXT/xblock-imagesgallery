@@ -10,20 +10,23 @@ from django.conf import settings
 from django.utils import translation
 from webob.response import Response
 from xblock.core import XBlock
+from xblock.fields import Scope, List
 from xblock.fragment import Fragment
 from xblockutils.resources import ResourceLoader
 
+
 try:
+    from cms.djangoapps.contentstore.exceptions import AssetNotFoundException
     from opaque_keys.edx.keys import AssetKey
     from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
     from xmodule.contentstore.content import StaticContent
     from xmodule.contentstore.django import contentstore
 except ImportError:
+    AssetNotFoundException = None
     configuration_helpers = None
     StaticContent = None
     contentstore = None
     AssetKey = None
-
 
 log = logging.getLogger(__name__)
 
@@ -52,6 +55,12 @@ IMAGE_CONTENT_TYPE_FOR_MONGO = {
 
 class ImagesGalleryXBlock(XBlock):
     """XBlock for displaying a gallery of images."""
+
+    contents = List(
+        display_name="Static contents uploaded by the instructor.",
+        default=[],
+        scope=Scope.settings,
+    )
 
     @property
     def block_id(self):
@@ -204,42 +213,61 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.handler
     def file_upload(self, request, suffix=''):  # pylint: disable=unused-argument
         """Handler for file upload to the course assets."""
+        # Temporary fix for supporting both contentstore assets management versions (master / Palm)
         try:
             from cms.djangoapps.contentstore.views.assets import update_course_run_asset  # pylint: disable=import-outside-toplevel
         except ImportError:
             from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset  # pylint: disable=import-outside-toplevel
-        contents = []
+        uploaded_content = []
         for _, file in request.params.items():
             try:
                 content = update_course_run_asset(self.course_id, file.file)
-                contents.append(content)
+                uploaded_content.append(self.get_asset_json_from_content(content))
+                self.update_contents(content)
             except Exception as e:  # pylint: disable=broad-except
                 log.exception(e)
                 return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
-        serialized_contents = [self.get_asset_json_from_content(content) for content in contents]
         return Response(
             status=HTTPStatus.OK,
-            json_body=serialized_contents,
+            json_body=uploaded_content,
         )
+
+    def update_contents(self, content):
+        """
+        Serializes the content object to a dictionary and appends it to the
+        contents list.
+        """
+        self.contents.append(self.get_asset_json_from_content(content))
 
     @XBlock.json_handler
     def get_files(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handler for getting images from the course assets."""
-        return self.get_paginated_contents(
+        paginated_contents = self.get_paginated_contents(
             current_page=int(data.get("current_page", 0)),
             page_size=int(data.get("page_size", 10)),
         )
+        return {
+            "files": paginated_contents,
+            "total_count": len(paginated_contents),
+        }
 
     @XBlock.json_handler
     def remove_files(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handler for removing images from the course assets."""
-        asset_key = AssetKey.from_string(data.get("asset_key"))
-        # Temporary fix for supporting both contentstore assets management versions (master / Palm)
         try:
-            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset  # pylint: disable=import-outside-toplevel
-        except ImportError:
             from cms.djangoapps.contentstore.views.assets import delete_asset  # pylint: disable=import-outside-toplevel
-        delete_asset(self.course_id, asset_key)
+        except ImportError:
+            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset  # pylint: disable=import-outside-toplevel
+        asset_key = AssetKey.from_string(data.get("asset_key"))
+        try:
+            delete_asset(self.course_id, asset_key)
+        except AssetNotFoundException as e:  # pylint: disable=broad-except
+            log.exception(e)
+
+        for content in self.contents:
+            if content["asset_key"] == str(asset_key):
+                self.contents.remove(content)
+                break
 
     def get_asset_json_from_content(self, content):
         """Serialize the content object to a JSON serializable object. """
@@ -256,21 +284,6 @@ class ImagesGalleryXBlock(XBlock):
             "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
         }
 
-    def get_asset_json_from_dict(self, asset):
-        """Transform the asset dictionary into a JSON serializable object."""
-        asset_url = StaticContent.serialize_asset_key_with_slash(asset["asset_key"])
-        thumbnail_url = self._get_thumbnail_asset_key(asset)
-        return {
-            "id": asset["_id"],
-            "asset_key": str(asset["asset_key"]),
-            "display_name": asset["displayname"],
-            "url": str(asset_url),
-            "content_type": asset["contentType"],
-            "file_size": asset["length"],
-            "external_url": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), asset_url),
-            "thumbnail": urljoin(configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL), thumbnail_url),
-        }
-
     def _get_thumbnail_asset_key(self, asset):
         """Return the thumbnail asset key."""
         thumbnail_location = asset.get('thumbnail_location', None)
@@ -282,21 +295,10 @@ class ImagesGalleryXBlock(XBlock):
         return str(thumbnail_asset_key)
 
     def get_paginated_contents(self, current_page=0, page_size=10):
-        """Return the assets paginated list."""
-        query_options = {
-            "current_page": current_page,
-            "page_size": page_size,
-            "sort": {},
-            "filter_params": IMAGE_CONTENT_TYPE_FOR_MONGO,
-        }
-        assets, total_count = self._get_assets_for_page(self.course_id, query_options)
-        serialized_assets = []
-        for asset in assets:
-            serialized_assets.append(self.get_asset_json_from_dict(asset))
-        return {
-            "files": serialized_assets,
-            "total_count": total_count,
-        }
+        """
+        Returns the contents list.
+        """
+        return self.contents[current_page * page_size: (current_page + 1) * page_size]
 
     def _get_assets_for_page(self, course_key, options):
         """Return course content for given course and options."""
