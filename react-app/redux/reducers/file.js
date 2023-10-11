@@ -1,7 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  filesToUpload: []
+  filesToUpload: [],
+  fetchGallery: {
+   xblockId: null,
+   fetched: false,
+  }
 };
 
 export const fileSlice = createSlice({
@@ -10,6 +14,9 @@ export const fileSlice = createSlice({
   reducers: {
     setFiles: (state, action) => {
       state.filesToUpload = action.payload;
+    },
+    uploadGallery: (state, action) => {
+      state.fetchGallery = action.payload;
     }
   }
 });

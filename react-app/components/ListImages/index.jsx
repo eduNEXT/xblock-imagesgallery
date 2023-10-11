@@ -6,12 +6,7 @@ import globalObject from '@constants/globalObject';
 import ImageItem from './components/ImageItem';
 import './styles.css';
 
-const ListImages =  (props) => {
-  const { isEditView } = globalObject;
-  const { list, onDeleteImageList } = props;
-  const { filesToUpload = [] } = useSelector(state => state.files);
-  const listImages = isEditView ? filesToUpload : list;
-
+const ListImages = ({ list, onDeleteImageList }) => {
   return (
     <>
       <div>
@@ -19,12 +14,12 @@ const ListImages =  (props) => {
       </div>
       <div className="xblock-images-gallery__grid">
         {list.map((imageData) => (
-          <ImageItem key={imageData.id} {...imageData} onDeleteImage={onDeleteImageList} />
+          <ImageItem key={imageData.uniqueId} {...imageData} onDeleteImage={onDeleteImageList} />
         ))}
       </div>
     </>
   );
-}
+};
 
 ListImages.propTypes = {
   list: PropTypes.arrayOf(
@@ -35,7 +30,8 @@ ListImages.propTypes = {
       name: PropTypes.string.isRequired,
       size: PropTypes.string.isRequired,
       isSaved: PropTypes.bool,
-      onDeleteImage: PropTypes.func
+      onDeleteImage: PropTypes.func,
+      uniqueId: PropTypes.string
     })
   ).isRequired,
   onDeleteImageList: PropTypes.func

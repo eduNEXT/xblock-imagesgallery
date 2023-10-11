@@ -1,3 +1,3 @@
 import { fileSlice } from '../reducers/file';
 
-export const { setFiles } = fileSlice.actions;
+export const { setFiles, uploadGallery } = fileSlice.actions;

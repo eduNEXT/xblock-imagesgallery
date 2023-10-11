@@ -1,9 +1,10 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react'
 import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
 import globalObject from '@constants/globalObject';
 import apiConfig from '@config/api';
 import ErrorMessage from '@components/ErrorMessage';
+import Spinner from '@components/Spinner';
 
 import './styles.css';
 
@@ -86,6 +87,10 @@ function Gallery() {
   const isFirstPageFetched = Boolean(fetchedPages[0]);
   const emptyImagesMessage = gettext('There are not images available');
 
+  if (isLoading) {
+    return <Spinner />;
+  }
+
   if (isFirstPageFetched && !sizeItems) {
     return <p>{emptyImagesMessage}</p>;
   }
@@ -101,7 +106,7 @@ function Gallery() {
           lazyLoad
         />
       </div>
-      {galleryErrorMessage && (<ErrorMessage message={galleryErrorMessage} />)}
+      {galleryErrorMessage && <ErrorMessage message={galleryErrorMessage} />}
     </div>
   );
 }
