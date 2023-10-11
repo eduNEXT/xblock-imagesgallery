@@ -11,7 +11,8 @@
           "@contexts": "./react-app/contexts",
           "@constants": "./react-app/constants",
           "@config": "./react-app/config",
-          "@redux": "./react-app/redux"
+          "@redux": "./react-app/redux",
+          "@hooks": "./react-app/hooks"
         }
       }
     ]
