@@ -4,7 +4,7 @@ import { v4 as uuid4 } from 'uuid';
 import DropZoneFile from '@components/DropZoneFile';
 import ListImages from '@components/ListImages';
 import ErrorMessage from '@components/ErrorMessage';
-import globalObject from '@constants/globalObject';
+import xBlockContext from '@constants/xBlockContext';
 import apiConfig from '@config/api';
 import useXBlockActionButtons from '@hooks/useXBlockActionButtons';
 
@@ -18,11 +18,12 @@ const XBlockEditView = () => {
   const [imagesToDelete, setImagesToDelete] = useState([]);
   const [isFetchLoading, setIsFetchLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-  const { xblockId, isEditView } = globalObject;
+  const [reloadPage, setReloadPage] = useState(false);
+  const { xblockId, isEditView } = xBlockContext;
   const xblockBottomButtons = useMemo(() => {
     return [
       {
-        id: '527bd5b5d689e2c32ae974c6229ff785',
+        id: new Date().getTime(),
         xblockIdItem: xblockId,
         title: 'Save',
         callback: () => {}
@@ -51,7 +52,6 @@ const XBlockEditView = () => {
 
     setIsFetchLoading(true);
 
-    buttonSaveRef.textContent = 'Loading...';
     buttonSaveRef.disabled = 'disabled';
     buttonSaveRef.classList.add('disabled-button');
 
@@ -71,15 +71,14 @@ const XBlockEditView = () => {
 
       setImagesToSave([]);
       setImagesToDelete([]);
-      location.reload();
+      setReloadPage(true);
     } catch (error) {
       const errorMessage = gettext('An unexpected error has occurred');
       setErrorMessage(errorMessage);
-    } finally {
-      setIsFetchLoading(false);
-      buttonSaveRef.textContent = 'Save';
       buttonSaveRef.classList.remove('disabled-button');
       buttonSaveRef.removeAttribute('disabled');
+    } finally {
+      setIsFetchLoading(false);
     }
   };
 
@@ -132,8 +131,8 @@ const XBlockEditView = () => {
   const fetchUploadedFiles = async (page = 0) => {
     setIsFetchLoading(true);
     try {
-      const { element: globalElement } = globalObject;
-      const fileGetterHandler = globalObject.runtime.handlerUrl(globalElement, 'get_files');
+      const { element: globalElement } = xBlockContext;
+      const fileGetterHandler = xBlockContext.runtime.handlerUrl(globalElement, 'get_files');
       const data = {
         current_page: page,
         page_size: itemsPerPage
@@ -145,7 +144,7 @@ const XBlockEditView = () => {
         throw new Error('Fetch uploaded files has failed');
       }
 
-      const { total_count: sizeItems, files } = filesResponse.data;
+      const { files } = filesResponse.data;
       const formatImagesUploaded = files.map(({ id, asset_key, display_name, file_size, external_url }) => ({
         id,
         assetKey: asset_key,
@@ -153,7 +152,7 @@ const XBlockEditView = () => {
         size: file_size,
         url: external_url,
         isSaved: true,
-        uniqueId: uuid4()
+        internalId: uuid4()
       }));
 
       setCurrentImagesList((prevImages) => [...prevImages, ...formatImagesUploaded]);
@@ -178,8 +177,8 @@ const XBlockEditView = () => {
    */
   async function deleteFiles(filesToDeleteKeys) {
     try {
-      const { element: globalElement } = globalObject;
-      const filesDeleteHandler = globalObject.runtime.handlerUrl(globalElement, 'remove_files');
+      const { element: globalElement } = xBlockContext;
+      const filesDeleteHandler = xBlockContext.runtime.handlerUrl(globalElement, 'remove_files');
 
       const deleteFilesResponse = await apiConfig.post(filesDeleteHandler, { assets: filesToDeleteKeys });
 
@@ -202,8 +201,8 @@ const XBlockEditView = () => {
    */
   async function uploadFiles(formData) {
     try {
-      const { element: globalElement, xblockId } = globalObject;
-      const fileUploadHandler = globalObject.runtime.handlerUrl(globalElement, 'file_upload');
+      const { element: globalElement } = xBlockContext;
+      const fileUploadHandler = xBlockContext.runtime.handlerUrl(globalElement, 'file_upload');
 
       // Upload the file
       const uploadResponse = await apiConfig.post(fileUploadHandler, formData, {
@@ -225,15 +224,15 @@ const XBlockEditView = () => {
   /**
    * Handles the deletion of an image from the currentImagesList.
    *
-   * @param {string} uniqueIdToDelete - The unique identifier of the image to delete.
+   * @param {string} internalIdToDelete - The unique identifier of the image to delete.
    * @param {string} assetKey - The key associated with the image.
    * @param {boolean} isImageSaved - Indicates whether the image is saved (to be deleted later).
    *
-   * This function removes an image from the currentImagesList based on its uniqueId.
+   * This function removes an image from the currentImagesList based on its internalId.
    * If isImageSaved is true, the assetKey is added to the list of images to be deleted.
    */
-  const handleDeleteImage = (uniqueIdToDelete, assetKey, isImageSaved) => {
-    const newImages = [...currentImagesList].filter(({ uniqueId }) => uniqueId !== uniqueIdToDelete);
+  const handleDeleteImage = (internalIdToDelete, assetKey, isImageSaved) => {
+    const newImages = [...currentImagesList].filter(({ internalId }) => internalId !== internalIdToDelete);
     if (isImageSaved) {
       setImagesToDelete((prevKeys) => [...prevKeys, assetKey]);
     }
@@ -243,6 +242,12 @@ const XBlockEditView = () => {
   useEffect(() => {
     fetchUploadedFiles();
   }, []);
+
+  useEffect(() => {
+    if (reloadPage) {
+      window.location.reload();
+    }
+  }, [reloadPage]);
 
   return (
     <>

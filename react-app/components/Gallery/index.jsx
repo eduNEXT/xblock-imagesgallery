@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from 'react'
 import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
-import globalObject from '@constants/globalObject';
+import xBlockContext from '@constants/xBlockContext';
 import apiConfig from '@config/api';
 import ErrorMessage from '@components/ErrorMessage';
 import Spinner from '@components/Spinner';
@@ -45,8 +45,8 @@ function Gallery() {
     setIsLoading(true);
 
     try {
-      const { element: globalElement } = globalObject;
-      const fileGetterHandler = globalObject.runtime.handlerUrl(globalElement, 'get_files');
+      const { element: globalElement } = xBlockContext;
+      const fileGetterHandler = xBlockContext.runtime.handlerUrl(globalElement, 'get_files');
       const data = {
         current_page: page,
         page_size: itemsPerPage

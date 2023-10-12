@@ -1,7 +1,5 @@
 import React, { memo } from 'react';
-import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import globalObject from '@constants/globalObject';
 
 import ImageItem from './components/ImageItem';
 import './styles.css';
@@ -14,7 +12,7 @@ const ListImages = ({ list, onDeleteImageList }) => {
       </div>
       <div className="xblock-images-gallery__grid">
         {list.map((imageData) => (
-          <ImageItem key={imageData.uniqueId} {...imageData} onDeleteImage={onDeleteImageList} />
+          <ImageItem key={imageData.internalId} {...imageData} onDeleteImage={onDeleteImageList} />
         ))}
       </div>
     </>
@@ -31,7 +29,7 @@ ListImages.propTypes = {
       size: PropTypes.string.isRequired,
       isSaved: PropTypes.bool,
       onDeleteImage: PropTypes.func,
-      uniqueId: PropTypes.string
+      internalId: PropTypes.string
     })
   ).isRequired,
   onDeleteImageList: PropTypes.func

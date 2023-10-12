@@ -1,4 +1,4 @@
-const globalObject = {
+const xBlockContext = {
   runtime: {
     handlerUrl: (_, url) => url
   },
@@ -9,4 +9,4 @@ const globalObject = {
   isEditView: false,
 };
 
-export default globalObject;
+export default xBlockContext;

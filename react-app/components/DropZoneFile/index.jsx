@@ -24,7 +24,7 @@ const DropZoneFile = ({ onDroppedImages }) => {
   const onDrop = useCallback(async (allowedFiles) => {
     const filesImagesToSave = [];
 
-    async function readAndProcessFile(file) {
+    async function processFile(file) {
       return new Promise((resolve) => {
         const reader = new FileReader();
 
@@ -38,7 +38,7 @@ const DropZoneFile = ({ onDroppedImages }) => {
             name,
             size,
             url,
-            uniqueId: uuid4(),
+            internalId: uuid4(),
             isSaved: false,
             file
           };
@@ -53,7 +53,7 @@ const DropZoneFile = ({ onDroppedImages }) => {
     }
 
     // Read and process all files asynchronously
-    await Promise.all(allowedFiles.map((file) => readAndProcessFile(file)));
+    await Promise.all(allowedFiles.map((file) => processFile(file)));
     onDroppedImages(filesImagesToSave);
   }, []);
 

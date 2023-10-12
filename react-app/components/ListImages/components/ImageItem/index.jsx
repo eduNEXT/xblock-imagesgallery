@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo } from 'react';
+import React, { useState, memo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import PropTypes from 'prop-types';
@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import './styles.css';
 
 const ImageItem = (props) => {
-  const { url, name, size, assetKey, isSaved, onDeleteImage, uniqueId } = props;
+  const { url, name, size, assetKey, isSaved, onDeleteImage, internalId } = props;
   const [isHovered, setIsHovered] = useState(false);
 
   // Event triggered when the mouse is over current the image.
@@ -22,7 +22,7 @@ const ImageItem = (props) => {
   // Callback triggered to delete the current image.
   const handleDeleteFileEditView = () => {
     if (onDeleteImage) {
-      onDeleteImage(uniqueId, assetKey, isSaved);
+      onDeleteImage(internalId, assetKey, isSaved);
     }
   };
 
@@ -53,7 +53,7 @@ ImageItem.propTypes = {
   size: PropTypes.string.isRequired,
   isSaved: PropTypes.bool,
   onDeleteImage: PropTypes.func,
-  uniqueId: PropTypes.string.isRequired
+  internalId: PropTypes.string.isRequired
 };
 
 export default memo(ImageItem);

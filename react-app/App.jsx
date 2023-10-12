@@ -2,21 +2,21 @@ import { useState } from 'react';
 import Gallery from '@components/Gallery';
 import XBlockEditView from '@components/XBlockEditView';
 import { GalleryContext } from '@contexts/galleryContext';
-import globalObject from '@constants/globalObject';
+import xBlockContext from '@constants/xBlockContext';
 
 import './App.css';
 
 const App = () => {
   const [filesToUploadList, setFilesToUploadList] = useState([]);
   const [galleryErrorMessage, setGalleryErrorMessage] = useState(null);
-  const { isStudioView, isEditView } = globalObject;
+  const { isEditView } = xBlockContext;
 
   return (
     <GalleryContext.Provider
       value={{ filesToUploadList, setFilesToUploadList, galleryErrorMessage, setGalleryErrorMessage }}>
       <div className="xblock-images-gallery__container">
         <h1 className="xblock-images-gallery__title">Images Gallery XBlock</h1>
-        {isStudioView && isEditView ? (
+        {isEditView ? (
           <XBlockEditView />
         ) : (
           <Gallery />
