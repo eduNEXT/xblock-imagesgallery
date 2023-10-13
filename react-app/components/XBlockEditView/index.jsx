@@ -25,7 +25,7 @@ const XBlockEditView = () => {
       {
         id: new Date().getTime(),
         xblockIdItem: xblockId,
-        title: 'Save',
+        title: gettext('Save'),
         callback: () => {}
       }
     ];
@@ -157,7 +157,7 @@ const XBlockEditView = () => {
 
       setCurrentImagesList((prevImages) => [...prevImages, ...formatImagesUploaded]);
     } catch (error) {
-      const errorMessage = gettext('An unexpected error has occured');
+      const errorMessage = gettext('An unexpected error has occurred');
       setErrorMessage(errorMessage);
     } finally {
       setIsFetchLoading(false);

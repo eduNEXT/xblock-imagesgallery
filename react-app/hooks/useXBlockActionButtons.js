@@ -14,13 +14,25 @@ const useXBlockActionButtons = (buttons, loading, callbackFunction, imagesList, 
 
   useEffect(() => {
     const actionButtonsContainer = document.querySelector('.modal-actions ul');
+    const cancelButton = actionButtonsContainer.querySelector('.action-cancel');
+    cancelButton.classList.replace('action-primary', 'remove-button');
 
-    buttons.forEach(({ id, title }) => {
+    const cancelButtons = actionButtonsContainer.querySelectorAll('.action-cancel');
+
+    cancelButtons.forEach((cancelButton) => {
+      cancelButton.textContent = gettext('Cancel');
+    });
+
+    buttons.forEach(({ id, title, isBeforePreviousButtons = true }) => {
       if (!buttonRefs.current[id]) {
         buttonRefs.current[id] = document.createElement('button');
         buttonRefs.current[id].href = '#';
         buttonRefs.current[id].className = 'button action-primary';
-        actionButtonsContainer.appendChild(buttonRefs.current[id]);
+        if (isBeforePreviousButtons) {
+          actionButtonsContainer.insertBefore(buttonRefs.current[id], actionButtonsContainer.firstChild);
+        } else {
+          actionButtonsContainer.appendChild(buttonRefs.current[id]);
+        }
       }
 
       // Always update the button's title and disable state based on the loading prop
