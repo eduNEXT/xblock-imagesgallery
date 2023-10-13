@@ -233,10 +233,13 @@ const XBlockEditView = () => {
    */
   const handleDeleteImage = (internalIdToDelete, assetKey, isImageSaved) => {
     const newImages = [...currentImagesList].filter(({ internalId }) => internalId !== internalIdToDelete);
+    const newImagesToSave = [...imagesToSave].filter(({ internalId }) => internalId !== internalIdToDelete);
     if (isImageSaved) {
       setImagesToDelete((prevKeys) => [...prevKeys, assetKey]);
     }
+
     setCurrentImagesList(newImages);
+    setImagesToSave(newImagesToSave);
   };
 
   useEffect(() => {
