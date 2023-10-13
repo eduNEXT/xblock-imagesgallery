@@ -28,3 +28,12 @@
 .image-gallery-icon:hover {
   box-shadow: none !important;
 }
+
+.modal-content {
+  min-height: 700px !important;
+}
+
+.remove-button {
+  background: transparent !important;
+  margin-left: 16px;
+}

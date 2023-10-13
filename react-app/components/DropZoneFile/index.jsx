@@ -1,12 +1,10 @@
 import React, { useCallback, useContext, useState, memo } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { StatusCodes } from 'http-status-codes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileImage } from '@fortawesome/free-regular-svg-icons';
+import PropTypes from 'prop-types';
+import { v4 as uuid4 } from 'uuid';
 import { GalleryContext } from '@contexts/galleryContext';
-import { getItemLocalStorage, setItemLocalStorage } from '@utils/localStorageUtils';
-import globalObject from '@constants/globalObject';
-import apiConfig from '@config/api';
 import ErrorMessage from '@components/ErrorMessage';
 import './styles.css';
 
@@ -19,71 +17,44 @@ const fileTypesAllowed = {
   'image/gif': []
 };
 
-const DropZoneFile = () => {
-  const { setFilesToUploadList, galleryErrorMessage } = useContext(GalleryContext);
-  const [dropZoneErrorMessage, setDropZoneErrorMessage] = useState(null);
-
-  /**
-   * Uploads files using the provided form data and fetches the uploaded files' information.
-   *
-   * @async
-   * @function
-   * @param {FormData} formData - The FormData containing files to be uploaded.
-   * @returns {Promise<void>} - A Promise that resolves once the upload is complete.
-   */
-  async function uploadAndFetchFiles(formData) {
-    let filesToUploadFailedMessage = '';
-    try {
-      const { element: globalElement, xblockId } = globalObject;
-      const fileUploadHandler = globalObject.runtime.handlerUrl(globalElement, 'file_upload');
-
-      // Upload the file
-      const uploadResponse = await apiConfig.post(fileUploadHandler, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      if (uploadResponse.status === StatusCodes.OK) {
-        const { data: imagesUploaded } = uploadResponse;
-
-        const formatImagesUploaded = imagesUploaded.map(({ id, asset_key, display_name, file_size, external_url }) => ({
-          id,
-          assetKey: asset_key,
-          name: display_name,
-          size: file_size,
-          url: external_url
-        }));
-
-        const filesSaved = getItemLocalStorage(xblockId) || [];
-
-        const filesUnloaded = [...filesSaved, ...formatImagesUploaded];
-        setFilesToUploadList(filesUnloaded);
-        setItemLocalStorage(xblockId, filesUnloaded);
-        setDropZoneErrorMessage(null);
-      } else {
-        filesToUploadFailedMessage = gettext('File upload failed');
-        setDropZoneErrorMessage(filesToUploadFailedMessage);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      filesToUploadFailedMessage = gettext('An unexpected error occurred');
-      setDropZoneErrorMessage(filesToUploadFailedMessage);
-    }
-  }
-
+const DropZoneFile = ({ onDroppedImages }) => {
+  const { galleryErrorMessage } = useContext(GalleryContext);
+  const [dropZoneErrorMessage] = useState(null);
   // Callback executed when files are dropped to the drop zone
-  const onDrop = useCallback((allowedFiles) => {
-    // Create a FormData object to send the file to the server
-    const formData = new FormData();
-    allowedFiles.forEach((file) => {
-      formData.append('files', file);
-    });
+  const onDrop = useCallback(async (allowedFiles) => {
+    const filesImagesToSave = [];
 
-    const { element: globalElement } = globalObject;
-    if (globalElement) {
-      uploadAndFetchFiles(formData);
+    async function processFile(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+          const { name, size } = file;
+          const id = uuid4();
+          const url = event.target.result;
+          const image = {
+            id: `${id}_${name}`,
+            assetKey: `${id}_asset`,
+            name,
+            size,
+            url,
+            internalId: uuid4(),
+            isSaved: false,
+            file
+          };
+
+          filesImagesToSave.push(image);
+          resolve();
+        };
+
+        // Read the file as a data URL (this will trigger the onload callback)
+        reader.readAsDataURL(file);
+      });
     }
+
+    // Read and process all files asynchronously
+    await Promise.all(allowedFiles.map((file) => processFile(file)));
+    onDroppedImages(filesImagesToSave);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: fileTypesAllowed });
@@ -100,6 +71,10 @@ const DropZoneFile = () => {
       )}
     </div>
   );
+};
+
+DropZoneFile.propTypes = {
+  onDroppedImages: PropTypes.func.isRequired
 };
 
 export default memo(DropZoneFile);

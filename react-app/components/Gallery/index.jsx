@@ -1,9 +1,10 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react'
 import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
-import globalObject from '@constants/globalObject';
+import xBlockContext from '@constants/xBlockContext';
 import apiConfig from '@config/api';
 import ErrorMessage from '@components/ErrorMessage';
+import Spinner from '@components/Spinner';
 
 import './styles.css';
 
@@ -44,8 +45,8 @@ function Gallery() {
     setIsLoading(true);
 
     try {
-      const { element: globalElement } = globalObject;
-      const fileGetterHandler = globalObject.runtime.handlerUrl(globalElement, 'get_files');
+      const { element: globalElement } = xBlockContext;
+      const fileGetterHandler = xBlockContext.runtime.handlerUrl(globalElement, 'get_files');
       const data = {
         current_page: page,
         page_size: itemsPerPage
@@ -62,7 +63,7 @@ function Gallery() {
       setImagesList((prevImages) => [...prevImages, ...formatImages]);
       setFetchedPages({ ...fetchedPages, [page]: true });
     } catch (error) {
-      const errorMessage = gettext('An unexpected error has occured');
+      const errorMessage = gettext('An unexpected error has occurred');
       setGalleryErrorMessage(errorMessage);
     } finally {
       setIsLoading(false);
@@ -86,6 +87,10 @@ function Gallery() {
   const isFirstPageFetched = Boolean(fetchedPages[0]);
   const emptyImagesMessage = gettext('There are not images available');
 
+  if (isLoading) {
+    return <Spinner />;
+  }
+
   if (isFirstPageFetched && !sizeItems) {
     return <p>{emptyImagesMessage}</p>;
   }
@@ -101,7 +106,7 @@ function Gallery() {
           lazyLoad
         />
       </div>
-      {galleryErrorMessage && (<ErrorMessage message={galleryErrorMessage} />)}
+      {galleryErrorMessage && <ErrorMessage message={galleryErrorMessage} />}
     </div>
   );
 }

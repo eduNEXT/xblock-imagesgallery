@@ -1,33 +1,23 @@
-import { useState, useEffect } from 'react';
-import DropZoneFile from '@components/DropZoneFile';
-import ListImages from '@components/ListImages';
+import { useState } from 'react';
 import Gallery from '@components/Gallery';
+import XBlockEditView from '@components/XBlockEditView';
 import { GalleryContext } from '@contexts/galleryContext';
-import globalObject from '@constants/globalObject';
-import { getItemLocalStorage } from '@utils/localStorageUtils';
+import xBlockContext from '@constants/xBlockContext';
 
 import './App.css';
 
 const App = () => {
   const [filesToUploadList, setFilesToUploadList] = useState([]);
   const [galleryErrorMessage, setGalleryErrorMessage] = useState(null);
-  const { xblockId, isStudioView } = globalObject;
-
-  useEffect(() => {
-    const filesUploaded = getItemLocalStorage(xblockId) || [];
-    setFilesToUploadList(filesUploaded);
-  }, []);
+  const { isEditView } = xBlockContext;
 
   return (
     <GalleryContext.Provider
       value={{ filesToUploadList, setFilesToUploadList, galleryErrorMessage, setGalleryErrorMessage }}>
       <div className="xblock-images-gallery__container">
         <h1 className="xblock-images-gallery__title">Images Gallery XBlock</h1>
-        {isStudioView ? (
-          <>
-            <DropZoneFile />
-            <ListImages list={filesToUploadList} />
-          </>
+        {isEditView ? (
+          <XBlockEditView />
         ) : (
           <Gallery />
         )}
