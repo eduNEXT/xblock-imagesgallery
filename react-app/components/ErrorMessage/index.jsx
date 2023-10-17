@@ -5,9 +5,9 @@ import PropTypes from 'prop-types';
 
 import './styles.css';
 
-const ErrorMessage = ({ message }) => {
+const ErrorMessage = ({ message, className = '' }) => {
   return (
-    <div className="error-message">
+    <div className={`error-message ${className}`}>
       <FontAwesomeIcon icon={faExclamationTriangle} className="error-icon" />
       <p className="error-text">{message}</p>
     </div>
@@ -15,7 +15,8 @@ const ErrorMessage = ({ message }) => {
 };
 
 ErrorMessage.propTypes = {
-  message: PropTypes.string.isRequired
+  message: PropTypes.string.isRequired,
+  className: PropTypes.string
 };
 
 export default ErrorMessage;
