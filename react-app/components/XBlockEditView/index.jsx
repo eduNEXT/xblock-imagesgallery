@@ -7,10 +7,11 @@ import ErrorMessage from '@components/ErrorMessage';
 import xBlockContext from '@constants/xBlockContext';
 import apiConfig from '@config/api';
 import useXBlockActionButtons from '@hooks/useXBlockActionButtons';
+import useAddErrorMessageToModal from '@hooks/useAddErrorMessageToModal';
 
 import './styles.css';
 
-const itemsPerPage = 10;
+const itemsPerPage = 100;
 
 const XBlockEditView = () => {
   const [imagesToSave, setImagesToSave] = useState([]);
@@ -56,18 +57,14 @@ const XBlockEditView = () => {
     buttonSaveRef.classList.add('disabled-button');
 
     try {
-      const requestPromises = [];
-
       if (data.length > 0) {
-        requestPromises.push(uploadFiles(formData));
+        await uploadFiles(formData);
       }
 
       if (imagesKeysToDelete.length > 0) {
         const imagesKeysToDeleteRemoveDuplicates = [...new Set(imagesKeysToDelete)];
-        requestPromises.push(deleteFiles(imagesKeysToDeleteRemoveDuplicates));
+        await deleteFiles(imagesKeysToDeleteRemoveDuplicates);
       }
-
-      await Promise.all(requestPromises);
 
       setImagesToSave([]);
       setImagesToDelete([]);
@@ -242,6 +239,10 @@ const XBlockEditView = () => {
     setImagesToSave(newImagesToSave);
   };
 
+  useAddErrorMessageToModal(
+    errorMessage ? <ErrorMessage message={errorMessage} className="error-message-edit" /> : null
+  );
+
   useEffect(() => {
     fetchUploadedFiles();
   }, []);
@@ -256,7 +257,6 @@ const XBlockEditView = () => {
     <>
       <DropZoneFile onDroppedImages={handleOnDroppedImages} />
       <ListImages list={currentImagesList} onDeleteImageList={handleDeleteImage} />
-      {errorMessage && <ErrorMessage message={errorMessage} />}
     </>
   );
 };
