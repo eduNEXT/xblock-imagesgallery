@@ -62,6 +62,12 @@ class ImagesGalleryXBlock(XBlock):
         scope=Scope.settings,
     )
 
+    content_names = List(
+        display_name="Content ids of the static contents uploaded by the instructor.",
+        default=[],
+        scope=Scope.settings,
+    )
+
     @property
     def block_id(self):
         """
@@ -221,6 +227,7 @@ class ImagesGalleryXBlock(XBlock):
         uploaded_content = []
         for _, file in request.params.items():
             try:
+                file.file._set_name(self.generate_file_name(file.file.name))  # pylint: disable=protected-access
                 content = update_course_run_asset(self.course_id, file.file)
                 uploaded_content.append(self.get_asset_json_from_content(content))
                 self.update_contents(content)
@@ -232,12 +239,26 @@ class ImagesGalleryXBlock(XBlock):
             json_body=uploaded_content,
         )
 
+    def generate_file_name(self, file_name):
+        """Generate a new file name if the file name already exists.
+
+        Args:
+            file_name (str): The file name to check.
+
+        Returns:
+            str: The new file name.
+        """
+        if file_name in self.content_names:
+            file_name = f"{file_name} ({len(self.content_names)})"
+        return file_name
+
     def update_contents(self, content):
         """
         Serializes the content object to a dictionary and appends it to the
         contents list.
         """
         self.contents.append(self.get_asset_json_from_content(content))
+        self.content_names.append(content.name)
 
     @XBlock.json_handler
     def get_files(self, data, suffix=''):  # pylint: disable=unused-argument
@@ -265,12 +286,13 @@ class ImagesGalleryXBlock(XBlock):
             asset_key = AssetKey.from_string(asset_key_id)
             try:
                 delete_asset(self.course_id, asset_key)
-            except AssetNotFoundException as e:  # pylint: disable=broad-except
+            except AssetNotFoundException as e:
                 log.exception(e)
 
             for content in self.contents:
                 if content["asset_key"] == str(asset_key):
                     self.contents.remove(content)
+                    self.content_names.remove(content["display_name"])
                     break
 
     def get_asset_json_from_content(self, content):
