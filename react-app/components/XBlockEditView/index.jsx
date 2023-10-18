@@ -57,13 +57,14 @@ const XBlockEditView = () => {
     buttonSaveRef.classList.add('disabled-button');
 
     try {
-      if (data.length > 0) {
-        await uploadFiles(formData);
-      }
 
       if (imagesKeysToDelete.length > 0) {
         const imagesKeysToDeleteRemoveDuplicates = [...new Set(imagesKeysToDelete)];
         await deleteFiles(imagesKeysToDeleteRemoveDuplicates);
+      }
+
+      if (data.length > 0) {
+        await uploadFiles(formData);
       }
 
       setImagesToSave([]);
