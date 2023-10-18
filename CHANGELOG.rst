@@ -16,6 +16,17 @@ Unreleased
 
 *
 
+0.4.0 - 2023-10-18
+**********************************************
+
+Changed
+=======
+
+* Add support for images with same name.
+* Make backend calls synchronous from the UI.
+
+0.2.0 - 2023-09-06
+
 0.3.0 - 2023-09-26
 **********************************************
 
