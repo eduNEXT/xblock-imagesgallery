@@ -227,7 +227,7 @@ class ImagesGalleryXBlock(XBlock):
         uploaded_content = []
         for _, file in request.params.items():
             try:
-                file.file._set_name(self.generate_file_name(file.file.name))
+                file.file._set_name(self.generate_file_name(file.file.name))  # pylint: disable=protected-access
                 content = update_course_run_asset(self.course_id, file.file)
                 uploaded_content.append(self.get_asset_json_from_content(content))
                 self.update_contents(content)
@@ -286,7 +286,7 @@ class ImagesGalleryXBlock(XBlock):
             asset_key = AssetKey.from_string(asset_key_id)
             try:
                 delete_asset(self.course_id, asset_key)
-            except AssetNotFoundException as e:  # pylint: disable=broad-except
+            except AssetNotFoundException as e:
                 log.exception(e)
 
             for content in self.contents:
