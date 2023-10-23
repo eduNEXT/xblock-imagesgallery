@@ -15,7 +15,6 @@ const App = () => {
     <GalleryContext.Provider
       value={{ filesToUploadList, setFilesToUploadList, galleryErrorMessage, setGalleryErrorMessage }}>
       <div className="xblock-images-gallery__container">
-        <h1 className="xblock-images-gallery__title">Images Gallery XBlock</h1>
         {isEditView ? (
           <XBlockEditView />
         ) : (
