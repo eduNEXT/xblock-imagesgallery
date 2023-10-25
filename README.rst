@@ -1,14 +1,69 @@
-ImagesGallery XBlock for open edX
+ImagesGallery XBlock
 ###################################
+
+|status-badge| |license-badge| |ci-badge|
 
 Purpose
 *******
 
-`XBlock`_ is the Open edX component architecture for building custom learning interactives.
+Images Gallery XBlock allows uploading and displaying a carousel of images
+using the `react-image-gallery`_ component.
 
-.. _XBlock: https://openedx.org/r/xblock
+Once the XBlock is added to a course, the instructor can upload images into a
+course unit, and the students can view the images in a carousel. The images are
+stored in the course's assets.
 
-XBlock that allows uploading, downloading, and displaying a carousel of images.
+.. _`react-image-gallery`: https://github.com/xiaolin/react-image-gallery
+
+Enabling the XBlock in a course
+*******************************
+
+When the XBlock has been installed, you can enable it in a course from Studio
+through the **Advanced Settings**.
+
+1. Go to Studio and open the course you want to add the XBlock to.
+2. Go to **Settings** > **Advanced Settings** from the top menu.
+3. Search for **Advanced Module List** and add ``"imagesgallery"`` to the list.
+4. Click **Save Changes** button.
+
+.. image:: https://github.com/eduNEXT/xblock-imagesgallery/assets/64033729/3427e9f7-4cbe-4267-96a8-7653351957d0
+   :alt: Enable XBlock in a course
+
+
+Adding a Images Gallery Component to a course unit
+**************************************************
+
+From Studio, you can add the Images Gallery Component to a course unit.
+
+1. Click on the **Advanced** button in **Add New Component**.
+2. Select **imagesgallery** from the list.
+
+.. image:: https://github.com/eduNEXT/xblock-imagesgallery/assets/64033729/23e76373-e55c-4fb2-b596-905164f63d4b
+   :alt: Add Images Gallery Component to a course unit
+
+.. image:: https://github.com/eduNEXT/xblock-imagesgallery/assets/64033729/d1e6857d-c597-4af7-ac89-f4b54b5e6bdc
+   :alt: Add Images Gallery Component to a course unit
+
+In the **Edit** modal you can upload images, and delete them. The allowed image
+formats are: ``.jpg``, ``.jpeg``, ``.png``, ``.gif``, ``.webp``, ``.heic`` and
+``.jfif``.
+
+.. image:: https://github.com/eduNEXT/xblock-imagesgallery/assets/64033729/4aab40bf-6a04-4b39-86f6-d3ea0647ce48
+   :alt: Add Images Gallery Component to a course unit
+
+The instructors can preview the images before publishing the changes in the
+course.
+
+
+View from the Learning Management System (LMS)
+**********************************************
+
+The students can view the images in a carousel. The carousel has a navigation
+arrow to move between the images, a full-screen and automatic slideshow button.
+
+.. image:: https://github.com/eduNEXT/xblock-imagesgallery/assets/64033729/53557af8-08da-414d-8dc5-249d7b17ac30
+   :alt: View from the LMS
+
 
 Setting up React
 ****************
@@ -23,7 +78,8 @@ There are three scripts to run our React app:
 
 1. **Running the React App in Isolation**:
 
-   This script runs the React app in isolation, which means you do not need the XBlock running. It starts a development server with a hot reload mechanism.
+   This script runs the React app in isolation, which means you do not need the
+   XBlock running. It starts a development server with a hot reload mechanism.
 
    .. code-block:: shell
 
@@ -31,7 +87,8 @@ There are three scripts to run our React app:
 
 2. **Running React with the XBlock**:
 
-   This script runs React with the XBlock running, allowing you to reload the page with any changes.
+   This script runs React with the XBlock running, allowing you to reload the
+   page with any changes.
 
    .. code-block:: shell
 
@@ -39,7 +96,8 @@ There are three scripts to run our React app:
 
 3. **Generating Static Files for Production**:
 
-   This script generates all the necessary static files for the production environment.
+   This script generates all the necessary static files for the production
+   environment.
 
    .. code-block:: shell
 
@@ -54,151 +112,106 @@ We also recommend using `yarn`_. You can install it with the following command:
 .. _yarn: https://classic.yarnpkg.com/lang/en/docs/install
 
 
-Testing with Docker
-********************
+Experimenting with this Xblock in the Workbench
+************************************************
 
-This XBlock comes with a Docker test environment ready to build, based on the xblock-sdk workbench. To build and run it::
+`XBlock`_ is the Open edX component architecture for building custom learning
+interactive components.
 
-    $ make dev.run
+.. _XBlock: https://openedx.org/r/xblock
 
-The XBlock SDK Workbench, including this XBlock, will be available on the list of XBlocks at http://localhost:8000
+You can see the Images Gallery component in action in the XBlock Workbench.
+Running the Workbench requires having docker running.
 
-Translating
+.. code:: bash
+
+    git clone git@github.com:eduNEXT/xblock-imagesgallery
+    virtualenv venv/
+    source venv/bin/activate
+    cd xblock-imagesgallery
+    make upgrade
+    make install
+    make dev.run
+
+Once the process is done, you can interact with the Images Gallery XBlock in
+the Workbench by navigating to http://localhost:8000
+
+For details regarding how to deploy this or any other XBlock in the Open edX
+platform, see the `installing-the-xblock`_ documentation.
+
+.. _installing-the-xblock: https://edx.readthedocs.io/projects/xblock-tutorial/en/latest/edx_platform/devstack.html#installing-the-xblock
+
+
+Getting Help
 *************
 
-Internationalization (i18n) is when a program is made aware of multiple languages.
-Localization (l10n) is adapting a program to local language and cultural habits.
+If you're having trouble, the Open edX community has active discussion forums
+available at https://discuss.openedx.org where you can connect with others in
+the community.
 
-Use the locale directory to provide internationalized strings for your XBlock project.
-For more information on how to enable translations, visit the
-`Open edX XBlock tutorial on Internationalization <https://edx.readthedocs.org/projects/xblock-tutorial/en/latest/edx_platform/edx_lms.html>`_.
+Also, real-time conversations are always happening on the Open edX community
+Slack channel. You can request a `Slack invitation`_, then join the
+`community Slack workspace`_.
 
-This cookiecutter template uses `django-statici18n <https://django-statici18n.readthedocs.io/en/latest/>`_
-to provide translations to static javascript using ``gettext``.
+For anything non-trivial, the best path is to open an `issue`_ in this
+repository with as many details about the issue you are facing as you can
+provide.
 
-The included Makefile contains targets for extracting, compiling and validating translatable strings.
-The general steps to provide multilingual messages for a Python program (or an XBlock) are:
+For more information about these options, see the `Getting Help`_ page.
 
-1. Mark translatable strings.
-2. Run i18n tools to create raw message catalogs.
-3. Create language specific translations for each message in the catalogs.
-4. Use ``gettext`` to translate strings.
-
-1. Mark translatable strings
-=============================
-
-Mark translatable strings in python::
+.. _Slack invitation: https://openedx.org/slack
+.. _community Slack workspace: https://openedx.slack.com/
+.. _issue: https://github.com/eduNEXT/xblock-imagesgallery/issues
+.. _Getting Help: https://openedx.org/getting-help
 
 
-    from django.utils.translation import ugettext as _
+License
+*******
 
-    # Translators: This comment will appear in the `.po` file.
-    message = _("This will be marked.")
+The code in this repository is licensed under the AGPL-3.0 unless otherwise
+noted.
 
-See `edx-developer-guide <https://edx.readthedocs.io/projects/edx-developer-guide/en/latest/internationalization/i18n.html#python-source-code>`__
-for more information.
-
-You can also use ``gettext`` to mark strings in javascript::
+Please see `LICENSE.txt <LICENSE.txt>`_ for details.
 
 
-    // Translators: This comment will appear in the `.po` file.
-    var message = gettext("Custom message.");
+Contributing
+************
 
-See `edx-developer-guide <https://edx.readthedocs.io/projects/edx-developer-guide/en/latest/internationalization/i18n.html#javascript-files>`__
-for more information.
+Contributions are very welcome.
 
-2. Run i18n tools to create Raw message catalogs
-=================================================
-
-This cookiecutter template offers multiple make targets which are shortcuts to
-use `edx-i18n-tools <https://github.com/openedx/i18n-tools>`_.
-
-After marking strings as translatable we have to create the raw message catalogs.
-These catalogs are created in ``.po`` files. For more information see
-`GNU PO file documentation <https://www.gnu.org/software/gettext/manual/html_node/PO-Files.html>`_.
-These catalogs can be created by running::
+This project is currently accepting all types of contributions, bug fixes,
+security fixes, maintenance work, or new features.  However, please make sure
+to have a discussion about your new feature idea with the maintainers prior to
+beginning development to maximize the chances of your change being accepted.
+You can start a conversation by creating a new issue on this repo summarizing
+your idea.
 
 
-    $ make extract_translations
+Translations
+============
+This Xblock is initially available in English and Spanish. You can help by
+translating this component to other languages. Follow the steps below:
 
-The previous command will create the necessary ``.po`` files under
-``xblock-imagesgallery/imagesgallery/locale/en/LC_MESSAGES/text.po``.
-The ``text.po`` file is created from the ``django-partial.po`` file created by
-``django-admin makemessages`` (`makemessages documentation <https://docs.djangoproject.com/en/3.2/topics/i18n/translation/#message-files>`_),
-this is why you will not see a ``django-partial.po`` file.
+1. Create a folder for the translations in ``locale/``, eg:
+   ``locale/fr_FR/LC_MESSAGES/``, and create your ``text.po`` file with all the
+   translations.
+2. Run ``make compile_translations``, this will generate the ``.mo`` file.
+3. Create a pull request with your changes!
 
-3. Create language specific translations
-==============================================
 
-3.1 Add translated strings
----------------------------
+Reporting Security Issues
+*************************
 
-After creating the raw message catalogs, all translations should be filled out by the translator.
-One or more translators must edit the entries created in the message catalog, i.e. the ``.po`` file(s).
-The format of each entry is as follows::
+Please do not report a potential security issue in public. Please email
+security@edunext.co.
 
-    #  translator-comments
-    A. extracted-comments
-    #: reference…
-    #, flag…
-    #| msgid previous-untranslated-string
-    msgid 'untranslated message'
-    msgstr 'mensaje traducido (translated message)'
 
-For more information see
-`GNU PO file documentation <https://www.gnu.org/software/gettext/manual/html_node/PO-Files.html>`_.
+.. |ci-badge| image:: https://github.com/eduNEXT/xblock-imagesgallery/workflows/Python%20CI/badge.svg?branch=main
+    :target: https://github.com/eduNEXT/xblock-imagesgallery/actions
+    :alt: CI
 
-To use translations from transifex use the follow Make target to pull translations::
+.. |license-badge| image:: https://img.shields.io/github/license/eduNEXT/xblock-imagesgallery.svg
+    :target: https://github.com/eduNEXT/xblock-imagesgallery/blob/main/LICENSE.txt
+    :alt: License
 
-    $ make pull_translations
-
-See `config instructions <https://github.com/openedx/i18n-tools#transifex-commands>`_ for information on how to set up your
-transifex credentials.
-
-See `transifex documentation <https://docs.transifex.com/integrations/django>`_ for more details about integrating
-django with transiflex.
-
-3.2 Compile translations
--------------------------
-
-Once translations are in place, use the following Make target to compile the translation catalogs ``.po`` into
-``.mo`` message files::
-
-    $ make compile_translations
-
-The previous command will compile ``.po`` files using
-``django-admin compilemessages`` (`compilemessages documentation <https://docs.djangoproject.com/en/3.2/topics/i18n/translation/#compiling-message-files>`_).
-After compiling the ``.po`` file(s), ``django-statici18n`` is used to create language specific catalogs. See
-``django-statici18n`` `documentation <https://django-statici18n.readthedocs.io/en/latest/>`_ for more information.
-
-To upload translations to transiflex use the follow Make target::
-
-    $ make push_translations
-
-See `config instructions <https://github.com/openedx/i18n-tools#transifex-commands>`_ for information on how to set up your
-transifex credentials.
-
-See `transifex documentation <https://docs.transifex.com/integrations/django>`_ for more details about integrating
-django with transiflex.
-
- **Note:** The ``dev.run`` make target will automatically compile any translations.
-
- **Note:** To check if the source translation files (``.po``) are up-to-date run::
-
-     $ make detect_changed_source_translations
-
-4. Use ``gettext`` to translate strings
-========================================
-
-Django will automatically use ``gettext`` and the compiled translations to translate strings.
-
-Troubleshooting
-****************
-
-If there are any errors compiling ``.po`` files run the following command to validate your ``.po`` files::
-
-    $ make validate
-
-See `django's i18n troubleshooting documentation
-<https://docs.djangoproject.com/en/3.2/topics/i18n/translation/#troubleshooting-gettext-incorrectly-detects-python-format-in-strings-with-percent-signs>`_
-for more information.
+.. |status-badge| image:: https://img.shields.io/badge/Status-Maintained-brightgreen
