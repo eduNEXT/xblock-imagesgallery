@@ -16,13 +16,11 @@ from xblockutils.resources import ResourceLoader
 
 
 try:
-    from cms.djangoapps.contentstore.exceptions import AssetNotFoundException
     from opaque_keys.edx.keys import AssetKey
     from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
     from xmodule.contentstore.content import StaticContent
     from xmodule.contentstore.django import contentstore
 except ImportError:
-    AssetNotFoundException = None
     configuration_helpers = None
     StaticContent = None
     contentstore = None
@@ -275,19 +273,10 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.json_handler
     def remove_files(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handler for removing images from the course assets."""
-        try:
-            from cms.djangoapps.contentstore.views.assets import delete_asset  # pylint: disable=import-outside-toplevel
-        except ImportError:
-            from cms.djangoapps.contentstore.asset_storage_handler import delete_asset  # pylint: disable=import-outside-toplevel
-
         assets = data.get("assets")
 
         for asset_key_id in assets:
             asset_key = AssetKey.from_string(asset_key_id)
-            try:
-                delete_asset(self.course_id, asset_key)
-            except AssetNotFoundException as e:
-                log.exception(e)
 
             for content in self.contents:
                 if content["asset_key"] == str(asset_key):
