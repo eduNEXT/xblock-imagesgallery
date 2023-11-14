@@ -261,6 +261,7 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.json_handler
     def get_files(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handler for getting images from the course assets."""
+        self.sync_course_assets()
         paginated_contents = self.get_paginated_contents(
             current_page=int(data.get("current_page", 0)),
             page_size=int(data.get("page_size", 10)),
@@ -314,6 +315,21 @@ class ImagesGalleryXBlock(XBlock):
         Returns the contents list.
         """
         return self.contents[current_page * page_size: (current_page + 1) * page_size]
+
+    def sync_course_assets(self):
+        """Sync course assets."""
+        course_assets_id = self.get_all_course_assets_id()
+
+        for content in self.contents:
+            if content["id"] not in course_assets_id:
+                print("Content not found in course assets, removing it from the list.")
+                self.contents.remove(content)
+                self.content_names.remove(content["display_name"])
+
+    def get_all_course_assets_id(self):
+        """Return all course assets id."""
+        course_assets, _ = contentstore().get_all_content_for_course(self.course_id)
+        return [asset["_id"] for asset in course_assets]
 
     def _get_assets_for_page(self, course_key, options):
         """Return course content for given course and options."""
