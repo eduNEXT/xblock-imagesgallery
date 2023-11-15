@@ -1,4 +1,5 @@
 """TO-DO: Write a description of what this XBlock is."""
+from __future__ import annotations
 
 import logging
 import os
@@ -10,10 +11,10 @@ from django.conf import settings
 from django.utils import translation
 from webob.response import Response
 from xblock.core import XBlock
-from xblock.fields import Scope, List
+from xblock.fields import List, Scope
 from xblock.fragment import Fragment
+from xblock.reference.user_service import XBlockUser
 from xblockutils.resources import ResourceLoader
-
 
 try:
     from opaque_keys.edx.keys import AssetKey
@@ -49,8 +50,10 @@ IMAGE_CONTENT_TYPE_FOR_MONGO = {
         }
     ]
 }
+ATTR_KEY_ANONYMOUS_USER_ID = 'edx-platform.anonymous_user_id'
 
 
+@XBlock.wants("user")
 class ImagesGalleryXBlock(XBlock):
     """XBlock for displaying a gallery of images."""
 
@@ -65,6 +68,12 @@ class ImagesGalleryXBlock(XBlock):
         default=[],
         scope=Scope.settings,
     )
+
+    def get_current_user(self) -> XBlockUser:
+        """
+        Get the current user.
+        """
+        return self.runtime.service(self, "user").get_current_user()
 
     @property
     def block_id(self):
@@ -261,7 +270,10 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.json_handler
     def get_files(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handler for getting images from the course assets."""
-        self.sync_course_assets()
+        # When inside the component edit view where there is no anonymous user ID, synchronize the assets.
+        if not self.get_current_user().opt_attrs.get(ATTR_KEY_ANONYMOUS_USER_ID):
+            self.sync_course_assets()
+
         paginated_contents = self.get_paginated_contents(
             current_page=int(data.get("current_page", 0)),
             page_size=int(data.get("page_size", 10)),
@@ -316,18 +328,27 @@ class ImagesGalleryXBlock(XBlock):
         """
         return self.contents[current_page * page_size: (current_page + 1) * page_size]
 
-    def sync_course_assets(self):
-        """Sync course assets."""
+    def sync_course_assets(self) -> None:
+        """
+        Synchronize images according to the course assets.
+
+        This method does the following:
+        - Get all course assets id.
+        - Remove the images that are not in the course assets.
+        """
         course_assets_id = self.get_all_course_assets_id()
 
         for content in self.contents:
             if content["id"] not in course_assets_id:
-                print("Content not found in course assets, removing it from the list.")
                 self.contents.remove(content)
                 self.content_names.remove(content["display_name"])
 
-    def get_all_course_assets_id(self):
-        """Return all course assets id."""
+    def get_all_course_assets_id(self) -> list[str]:
+        """Return all course assets id.
+
+        Returns:
+            list[str]: List of all course assets id.
+        """
         course_assets, _ = contentstore().get_all_content_for_course(self.course_id)
         return [asset["_id"] for asset in course_assets]
 
