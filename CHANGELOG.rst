@@ -16,6 +16,15 @@ Unreleased
 
 *
 
+0.4.2 - 2023-11-16
+**********************************************
+
+Changed
+=======
+
+* Update documentation
+* Correct image deletion functionality
+
 0.4.1 - 2023-10-24
 **********************************************
 
