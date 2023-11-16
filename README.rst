@@ -13,6 +13,10 @@ Once the XBlock is added to a course, the instructor can upload images into a
 course unit, and the students can view the images in a carousel. The images are
 stored in the course's assets.
 
+This XBlock has been created as an open source contribution to the Open edX
+platform and has been funded by Unidigital project from the Spanish Government
+- 2023.
+
 .. _`react-image-gallery`: https://github.com/xiaolin/react-image-gallery
 
 Enabling the XBlock in a course
@@ -53,6 +57,44 @@ formats are: ``.jpg``, ``.jpeg``, ``.png``, ``.gif``, ``.webp``, ``.heic`` and
 
 The instructors can preview the images before publishing the changes in the
 course.
+
+Using the Images Gallery Component
+**********************************
+
+Upload images
+=============
+1. Go to edit section of the component from Studio.
+2. Upload files by clicking on the dotted area or by dragging and dropping the
+   images and save the changes.
+
+   .. image:: https://github.com/eduNEXT/xblock-imagesgallery/assets/64033729/d336b6cd-0723-4574-860b-f313874c40c4
+      :alt: Upload images
+
+   .. image:: https://github.com/eduNEXT/xblock-imagesgallery/assets/64033729/6acf3bd0-4f06-4677-951c-23a2b40cf977
+      :alt: Upload images
+3. The uploaded files are added to the course assets, and they can be viewed
+   from **Content** > **Files** in Studio.
+
+   .. image:: https://github.com/eduNEXT/xblock-imagesgallery/assets/64033729/ebbd5c65-84fa-40d8-9c3e-0a77b81b1ec9
+      :alt: Files in Course Assets
+
+Delete images
+=============
+To delete a image, the following must be taken into account:
+
+1. Delete an image from the Images Gallery component won't delete the image
+   from the course assets, only from the component, but, the image won't
+   be visible from the student view.
+
+   .. image:: https://github.com/eduNEXT/xblock-imagesgallery/assets/64033729/0e41d49b-b5c4-4f7e-bc94-fe86b1abc005
+      :alt: Delete image from the component
+
+2. Delete an image from course assets will delete the image from the Images
+   Gallery component, and therefore, the image won't be visible from the
+   student view.
+
+   .. image:: https://github.com/eduNEXT/xblock-imagesgallery/assets/64033729/748dd903-0dd6-49fa-9a7d-2fafb909815c
+      :alt: Delete image from course assets
 
 
 View from the Learning Management System (LMS)
