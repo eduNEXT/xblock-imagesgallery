@@ -16,6 +16,14 @@ Unreleased
 
 *
 
+0.4.3 - 2023-11-27
+**********************************************
+
+Changed
+=======
+
+* Add using images gallery component section to the documentation
+
 0.4.2 - 2023-11-16
 **********************************************
 
@@ -41,8 +49,6 @@ Changed
 
 * Add support for images with same name.
 * Make backend calls synchronous from the UI.
-
-0.2.0 - 2023-09-06
 
 0.3.0 - 2023-09-26
 **********************************************
