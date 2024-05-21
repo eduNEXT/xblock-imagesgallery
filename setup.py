@@ -173,6 +173,12 @@ setup(
         'Programming Language :: Python :: 3.8',
     ],
     entry_points={
+        "lms.djangoapp": [
+            "imagesgallery = imagesgallery.apps:ImagesGalleryConfig",
+        ],
+        "cms.djangoapp": [
+            "imagesgallery = imagesgallery.apps:ImagesGalleryConfig",
+        ],
         'xblock.v1': [
             'imagesgallery = imagesgallery:ImagesGalleryXBlock',
         ]

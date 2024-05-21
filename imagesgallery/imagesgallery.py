@@ -1,4 +1,4 @@
-"""TO-DO: Write a description of what this XBlock is."""
+"""Images Gallery XBlock."""
 from __future__ import annotations
 
 import logging
@@ -9,23 +9,16 @@ from urllib.parse import urljoin
 import pkg_resources
 from django.conf import settings
 from django.utils import translation
+from opaque_keys.edx.keys import AssetKey
+from web_fragments.fragment import Fragment
 from webob.response import Response
 from xblock.core import XBlock
 from xblock.fields import List, Scope
-from xblock.fragment import Fragment
 from xblock.reference.user_service import XBlockUser
-from xblockutils.resources import ResourceLoader
+from xblock.utils.resources import ResourceLoader
 
-try:
-    from opaque_keys.edx.keys import AssetKey
-    from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
-    from xmodule.contentstore.content import StaticContent
-    from xmodule.contentstore.django import contentstore
-except ImportError:
-    configuration_helpers = None
-    StaticContent = None
-    contentstore = None
-    AssetKey = None
+from imagesgallery.edxapp_wrapper.contentstore import StaticContent, contentstore, update_course_run_asset
+from imagesgallery.edxapp_wrapper.site_configuration import configuration_helpers
 
 log = logging.getLogger(__name__)
 
@@ -226,11 +219,6 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.handler
     def file_upload(self, request, suffix=''):  # pylint: disable=unused-argument
         """Handler for file upload to the course assets."""
-        # Temporary fix for supporting both contentstore assets management versions (master / Palm)
-        try:
-            from cms.djangoapps.contentstore.views.assets import update_course_run_asset  # pylint: disable=import-outside-toplevel
-        except ImportError:
-            from cms.djangoapps.contentstore.asset_storage_handler import update_course_run_asset  # pylint: disable=import-outside-toplevel
         uploaded_content = []
         for _, file in request.params.items():
             try:
