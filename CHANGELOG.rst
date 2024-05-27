@@ -23,6 +23,7 @@ Changed
 =======
 
 * Add backends for edx-platform imports
+* Add compatibility notes
 
 0.5.0 - 2024-01-29
 **********************************************
