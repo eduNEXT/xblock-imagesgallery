@@ -180,7 +180,7 @@ setup(
             "imagesgallery = imagesgallery.apps:ImagesGalleryConfig",
         ],
         'xblock.v1': [
-            'imagesgallery = imagesgallery:ImagesGalleryXBlock',
+            'imagesgallery = imagesgallery.imagesgallery:ImagesGalleryXBlock',
         ]
     },
     package_data=package_data("imagesgallery", ["static", "public"]),
