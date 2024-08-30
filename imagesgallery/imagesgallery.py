@@ -17,7 +17,6 @@ from xblock.fields import List, Scope
 from xblock.reference.user_service import XBlockUser
 from xblock.utils.resources import ResourceLoader
 
-from imagesgallery.edxapp_wrapper.contentstore import StaticContent, contentstore, update_course_run_asset
 from imagesgallery.edxapp_wrapper.site_configuration import configuration_helpers
 
 log = logging.getLogger(__name__)
@@ -219,6 +218,8 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.handler
     def file_upload(self, request, suffix=''):  # pylint: disable=unused-argument
         """Handler for file upload to the course assets."""
+        from imagesgallery.edxapp_wrapper.contentstore import update_course_run_asset # pylint: disable=import-outside-toplevel
+
         uploaded_content = []
         for _, file in request.params.items():
             try:
@@ -287,6 +288,8 @@ class ImagesGalleryXBlock(XBlock):
 
     def get_asset_json_from_content(self, content):
         """Serialize the content object to a JSON serializable object. """
+        from imagesgallery.edxapp_wrapper.contentstore import StaticContent # pylint: disable=import-outside-toplevel
+
         asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
         thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
         return {
@@ -337,11 +340,15 @@ class ImagesGalleryXBlock(XBlock):
         Returns:
             list[str]: List of all course assets id.
         """
+        from imagesgallery.edxapp_wrapper.contentstore import contentstore # pylint: disable=import-outside-toplevel
+
         course_assets, _ = contentstore().get_all_content_for_course(self.course_id)
         return [asset["_id"] for asset in course_assets]
 
     def _get_assets_for_page(self, course_key, options):
         """Return course content for given course and options."""
+        from imagesgallery.edxapp_wrapper.contentstore import contentstore # pylint: disable=import-outside-toplevel
+
         current_page = options["current_page"]
         page_size = options["page_size"]
         sort = options["sort"]
