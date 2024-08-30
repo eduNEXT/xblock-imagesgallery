@@ -16,6 +16,15 @@ Unreleased
 
 *
 
+0.5.2 - 2024-08-30
+**********************************************
+
+Fixed
+=====
+
+* Move contentstore backend imports into the specific methods
+  to avoid runtime errors.
+
 0.5.1 - 2024-05-27
 **********************************************
 
