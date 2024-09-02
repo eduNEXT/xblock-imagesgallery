@@ -22,7 +22,7 @@ Unreleased
 Fixed
 =====
 
-* Move contentstore backend imports into the specific methods
+* Move ``StaticContent`` import into the specific method
   to avoid runtime errors due to circular imports.
 
 0.5.1 - 2024-05-27
