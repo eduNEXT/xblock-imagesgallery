@@ -218,6 +218,7 @@ class ImagesGalleryXBlock(XBlock):
     @XBlock.handler
     def file_upload(self, request, suffix=''):  # pylint: disable=unused-argument
         """Handler for file upload to the course assets."""
+        # Avoid circular import
         from imagesgallery.edxapp_wrapper.contentstore import update_course_run_asset # pylint: disable=import-outside-toplevel
 
         uploaded_content = []
@@ -288,6 +289,7 @@ class ImagesGalleryXBlock(XBlock):
 
     def get_asset_json_from_content(self, content):
         """Serialize the content object to a JSON serializable object. """
+        # Avoid circular import
         from imagesgallery.edxapp_wrapper.contentstore import StaticContent # pylint: disable=import-outside-toplevel
 
         asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
@@ -340,6 +342,7 @@ class ImagesGalleryXBlock(XBlock):
         Returns:
             list[str]: List of all course assets id.
         """
+        # Avoid circular import
         from imagesgallery.edxapp_wrapper.contentstore import contentstore # pylint: disable=import-outside-toplevel
 
         course_assets, _ = contentstore().get_all_content_for_course(self.course_id)
@@ -347,6 +350,7 @@ class ImagesGalleryXBlock(XBlock):
 
     def _get_assets_for_page(self, course_key, options):
         """Return course content for given course and options."""
+        # Avoid circular import
         from imagesgallery.edxapp_wrapper.contentstore import contentstore # pylint: disable=import-outside-toplevel
 
         current_page = options["current_page"]
