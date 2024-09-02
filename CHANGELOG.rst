@@ -23,7 +23,7 @@ Fixed
 =====
 
 * Move contentstore backend imports into the specific methods
-  to avoid runtime errors.
+  to avoid runtime errors due to circular imports.
 
 0.5.1 - 2024-05-27
 **********************************************
