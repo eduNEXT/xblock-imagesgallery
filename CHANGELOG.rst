@@ -16,6 +16,15 @@ Unreleased
 
 *
 
+0.5.2 - 2024-09-02
+**********************************************
+
+Fixed
+=====
+
+* Move ``StaticContent`` import into the specific method
+  to avoid runtime errors due to circular imports.
+
 0.5.1 - 2024-05-27
 **********************************************
 

@@ -17,7 +17,7 @@ from xblock.fields import List, Scope
 from xblock.reference.user_service import XBlockUser
 from xblock.utils.resources import ResourceLoader
 
-from imagesgallery.edxapp_wrapper.contentstore import StaticContent, contentstore, update_course_run_asset
+from imagesgallery.edxapp_wrapper.contentstore import get_static_content, contentstore, update_course_run_asset
 from imagesgallery.edxapp_wrapper.site_configuration import configuration_helpers
 
 log = logging.getLogger(__name__)
@@ -287,6 +287,7 @@ class ImagesGalleryXBlock(XBlock):
 
     def get_asset_json_from_content(self, content):
         """Serialize the content object to a JSON serializable object. """
+        StaticContent = get_static_content() # This is done here to avoid circular import
         asset_url = StaticContent.serialize_asset_key_with_slash(content.location)
         thumbnail_url = StaticContent.serialize_asset_key_with_slash(content.thumbnail_location)
         return {

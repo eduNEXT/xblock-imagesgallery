@@ -35,6 +35,3 @@ def update_course_run_asset(*args, **kwargs):
     backend = import_module(backend_function)
 
     return backend.update_course_run_asset(*args, **kwargs)
-
-
-StaticContent = get_static_content()
