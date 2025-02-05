@@ -6,7 +6,7 @@ import os
 from http import HTTPStatus
 from urllib.parse import urljoin
 
-import pkg_resources
+from importlib.resources import files as importlib_files
 from django.conf import settings
 from django.utils import translation
 from opaque_keys.edx.keys import AssetKey
@@ -15,7 +15,6 @@ from webob.response import Response
 from xblock.core import XBlock
 from xblock.fields import List, Scope
 from xblock.reference.user_service import XBlockUser
-from xblock.utils.resources import ResourceLoader
 
 from imagesgallery.edxapp_wrapper.contentstore import get_static_content, contentstore, update_course_run_asset
 from imagesgallery.edxapp_wrapper.site_configuration import configuration_helpers
@@ -84,8 +83,7 @@ class ImagesGalleryXBlock(XBlock):
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
-        data = pkg_resources.resource_string(__name__, path)
-        return data.decode("utf8")
+        return importlib_files(__package__).joinpath(path).read_text(encoding="utf-8")
 
     def read_file(self, path: str):
         """Helper for reading a file using a relative path"""
@@ -383,9 +381,7 @@ class ImagesGalleryXBlock(XBlock):
         text_js = 'public/js/translations/{locale_code}/text.js'
         lang_code = locale_code.split('-')[0]
         for code in (locale_code, lang_code, 'en'):
-            loader = ResourceLoader(__name__)
-            if pkg_resources.resource_exists(
-                    loader.module_name, text_js.format(locale_code=code)):
+            if importlib_files(__package__).joinpath(text_js.format(locale_code=code)).exists():
                 return text_js.format(locale_code=code)
         return None
 
