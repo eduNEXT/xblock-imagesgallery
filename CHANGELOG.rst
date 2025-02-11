@@ -22,7 +22,7 @@ Unreleased
 Changed
 =======
 
-* Remove support for python 3.8 and django 3.2
+* Removed support for Python 3.8 and Django 3.2
 * Replaced deprecated `pkg_resources` APIs with `importlib.resources` and `importlib.metadata` to ensure compatibility with newer Django and Python versions.
 * Starting with this version (1.0.0), it is no longer compatible with Quince.
 
