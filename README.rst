@@ -33,12 +33,12 @@ Compatibility Notes
 +------------------+--------------+
 | Sumac            | >= 0.6.0     |
 +------------------+--------------+
-| Teak             | >= 2.0.0     |
+| Teak             | >= 1.1.0     |
 +------------------+--------------+
 
 The settings can be changed in ``imagesgallery/settings/common.py`` or, for example, in tutor configurations.
 
-**NOTE**: the current ``common.py`` works with Open edX Palm, Quince, Redwood,Sumac and Teak versions.
+**NOTE**: the current ``common.py`` works with Open edX releases >= Redwood.
 
 Enabling the XBlock in a course
 *******************************
