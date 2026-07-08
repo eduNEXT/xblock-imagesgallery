@@ -35,6 +35,10 @@ Compatibility Notes
 +------------------+--------------+
 | Teak             | >= 1.1.0     |
 +------------------+--------------+
+| Ulmo             | >= 1.2.0     |
++------------------+--------------+
+| Verawood         | >= 1.3.0     |
++------------------+--------------+
 
 The settings can be changed in ``imagesgallery/settings/common.py`` or, for example, in tutor configurations.
 
